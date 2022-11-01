@@ -2,30 +2,46 @@
 
 pragma solidity ^0.8.16;
 
+import "@rmrk-team/evm-contracts/contracts/RMRK/access/OwnableLock.sol";
 import "@rmrk-team/evm-contracts/contracts/RMRK/equippable/RMRKEquippable.sol";
 import "@rmrk-team/evm-contracts/contracts/RMRK/extension/RMRKRoyalties.sol";
 import "@rmrk-team/evm-contracts/contracts/RMRK/utils/RMRKCollectionMetadata.sol";
-import "@rmrk-team/evm-contracts/contracts/RMRK/utils/RMRKMintingUtils.sol";
-import "./IPart.sol";
+import "./IDoodlePart.sol";
 
 error OnlyFactoryCanMint();
 error PartOutOfStock();
 
-contract Part is
-    IPart,
-    RMRKMintingUtils,
+contract DoodlePart is
+    IDoodlePart,
+    OwnableLock,
     RMRKCollectionMetadata,
     RMRKRoyalties,
     RMRKEquippable
 {
+    struct ResourceConfig {
+        uint64 resourceId;
+        uint64 fullToEquip;
+        uint64 maxSupply;
+        uint256 pricePerMint;
+    }
+
+    uint256 private constant _MAX_SUPPLY = 1000;
+    uint256 private _totalSupply;
+
     mapping(uint64 => uint256) private _pricePerMintPerResource;
     mapping(uint64 => uint256) private _totalSupplyPerResource;
     mapping(uint64 => uint256) private _maxSupplyPerResource;
     mapping(uint64 => uint64) private _fullToEquipResource;
+    mapping(uint64 => uint64) private _pricePerResource;
     address private _factory;
 
     modifier onlyFactory() {
         _onlyFactory();
+        _;
+    }
+
+    modifier saleIsOpen() {
+        if (_totalSupply >= _MAX_SUPPLY) revert RMRKMintOverMax();
         _;
     }
 
@@ -36,7 +52,6 @@ contract Part is
         uint256 pricePerMint_,
         address royaltyRecipient
     )
-        RMRKMintingUtils(1000, pricePerMint_)
         RMRKCollectionMetadata(collectionMetadata_)
         RMRKRoyalties(royaltyRecipient, 500) // 500 -> 5%
         RMRKEquippable(name, symbol)
@@ -89,17 +104,25 @@ contract Part is
         }
     }
 
-    function configureResourceEntry(
-        uint64 resourceId,
-        uint64 fullToEquip,
-        uint256 pricePerMint_,
-        uint256 totalSupply_,
-        uint256 maxSupply_
-    ) external onlyOwner {
-        _pricePerMintPerResource[resourceId] = pricePerMint_;
-        _totalSupplyPerResource[resourceId] = totalSupply_;
-        _maxSupplyPerResource[resourceId] = maxSupply_;
-        _fullToEquipResource[resourceId] = fullToEquip;
+    function configureResourceEntries(ResourceConfig[] memory resourceConfigs)
+        external
+        onlyOwner
+    {
+        uint256 length = resourceConfigs.length;
+        for (uint256 i; i < length; ) {
+            _pricePerMintPerResource[
+                resourceConfigs[i].resourceId
+            ] = resourceConfigs[i].pricePerMint;
+            _maxSupplyPerResource[
+                resourceConfigs[i].resourceId
+            ] = resourceConfigs[i].maxSupply;
+            _fullToEquipResource[
+                resourceConfigs[i].resourceId
+            ] = resourceConfigs[i].fullToEquip;
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     function setValidParentForEquippableGroup(
@@ -130,6 +153,10 @@ contract Part is
         return _fullToEquipResource[resourceId];
     }
 
+    function pricePerResource(uint64 resourceId) public view returns (uint64) {
+        return _pricePerResource[resourceId];
+    }
+
     function updateRoyaltyRecipient(address newRoyaltyRecipient)
         external
         override
@@ -157,5 +184,13 @@ contract Part is
         returns (string memory)
     {
         return getResourceMetaForToken(tokenId, 0);
+    }
+
+    function totalSupply() public view returns (uint256) {
+        return _totalSupply;
+    }
+
+    function maxSupply() public pure returns (uint256) {
+        return _MAX_SUPPLY;
     }
 }

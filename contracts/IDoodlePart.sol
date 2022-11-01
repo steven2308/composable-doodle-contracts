@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.16;
 
-interface IPart {
+interface IDoodlePart {
     function nestMint(
         address parent,
         uint256 destinationId,
@@ -10,4 +10,6 @@ interface IPart {
     ) external returns (uint256);
 
     function pricePerMint(uint64 resourceId) external view returns (uint256);
+
+    function fullToEquip(uint64 resourceId) external view returns (uint64);
 }

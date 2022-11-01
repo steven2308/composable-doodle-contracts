@@ -3,8 +3,8 @@
 pragma solidity ^0.8.16;
 
 import "@rmrk-team/evm-contracts/contracts/RMRK/access/OwnableLock.sol";
-import "./IPart.sol";
-import "./ISheet.sol";
+import "./IDoodlePart.sol";
+import "./IDoodleSheet.sol";
 
 error MintUnderpriced();
 error NothingToWithdraw();
@@ -12,7 +12,7 @@ error OnlyParterCanUpdateItsAddres();
 error OnlyParternsCanWithdraw();
 error SalesNotOpen();
 
-contract Factory is OwnableLock {
+contract RobotFactory is OwnableLock {
     address private _sheet;
     address private _body;
     address private _head;
@@ -31,11 +31,12 @@ contract Factory is OwnableLock {
     event BotBuilt(
         address indexed to,
         uint256 indexed sheetId,
-        uint256 bodyId,
-        uint256 headId,
-        uint256 legsId,
-        uint256 leftArmId,
-        uint256 rightArmId
+        uint64 sheetResourceId,
+        uint64 bodyResourceId,
+        uint64 headResourceId,
+        uint64 legsResourceId,
+        uint64 leftArmResourceId,
+        uint64 rightArResourcemId
     );
 
     constructor(
@@ -69,32 +70,24 @@ contract Factory is OwnableLock {
         uint64 rightArmResId
     ) external payable notLocked {
         if (_salesOpen == 0) revert SalesNotOpen();
-        uint256 sheetId = ISheet(_sheet).mint(to, sheetResId);
+        uint256 sheetId = IDoodleSheet(_sheet).mint(to, sheetResId);
 
-        uint256 totalPrice = IPart(_leftArm).pricePerMint(leftArmResId) +
-            IPart(_rightArm).pricePerMint(rightArmResId) +
-            IPart(_legs).pricePerMint(legsResId) +
-            IPart(_head).pricePerMint(headResId) +
-            IPart(_body).pricePerMint(bodyResId);
+        uint256 totalPrice = IDoodlePart(_leftArm).pricePerMint(leftArmResId) +
+            IDoodlePart(_rightArm).pricePerMint(rightArmResId) +
+            IDoodlePart(_legs).pricePerMint(legsResId) +
+            IDoodlePart(_head).pricePerMint(headResId) +
+            IDoodlePart(_body).pricePerMint(bodyResId);
         if (totalPrice != msg.value) revert MintUnderpriced();
         _distributeValue();
 
-        uint256 bodyId = IPart(_leftArm).nestMint(
-            _sheet,
-            sheetId,
-            leftArmResId
-        );
-        uint256 headId = IPart(_rightArm).nestMint(
-            _sheet,
-            sheetId,
-            rightArmResId
-        );
-        uint256 legsId = IPart(_legs).nestMint(_sheet, sheetId, legsResId);
-        uint256 leftArmId = IPart(_head).nestMint(_sheet, sheetId, headResId);
-        uint256 rightArmId = IPart(_body).nestMint(_sheet, sheetId, bodyResId);
+        IDoodlePart(_leftArm).nestMint(_sheet, sheetId, leftArmResId);
+        IDoodlePart(_rightArm).nestMint(_sheet, sheetId, rightArmResId);
+        IDoodlePart(_legs).nestMint(_sheet, sheetId, legsResId);
+        IDoodlePart(_head).nestMint(_sheet, sheetId, headResId);
+        IDoodlePart(_body).nestMint(_sheet, sheetId, bodyResId);
 
-        ISheet(_sheet).acceptChildrenFromFactory(sheetId);
-        ISheet(_sheet).equipFromFactory(
+        IDoodleSheet(_sheet).acceptChildrenFromFactory(sheetId);
+        _equipAll(
             sheetId,
             sheetResId,
             bodyResId,
@@ -106,11 +99,12 @@ contract Factory is OwnableLock {
         emit BotBuilt(
             to,
             sheetId,
-            bodyId,
-            headId,
-            legsId,
-            leftArmId,
-            rightArmId
+            sheetResId,
+            bodyResId,
+            headResId,
+            legsResId,
+            leftArmResId,
+            rightArmResId
         );
     }
 
@@ -119,6 +113,26 @@ contract Factory is OwnableLock {
         uint256 partner2Part = msg.value - partner1Part;
         _partner1Balance += partner1Part;
         _partner2Balance += partner2Part;
+    }
+
+    function _equipAll(
+        uint256 sheetId,
+        uint64 sheetResId,
+        uint64 bodyResId,
+        uint64 headResId,
+        uint64 legsResId,
+        uint64 leftArmResId,
+        uint64 rightArmResId
+    ) private {
+        IDoodleSheet(_sheet).equipFromFactory(
+            sheetId,
+            sheetResId,
+            IDoodlePart(_body).fullToEquip(bodyResId),
+            IDoodlePart(_head).fullToEquip(headResId),
+            IDoodlePart(_legs).fullToEquip(legsResId),
+            IDoodlePart(_leftArm).fullToEquip(leftArmResId),
+            IDoodlePart(_rightArm).fullToEquip(rightArmResId)
+        );
     }
 
     function sheetAddress() external view returns (address) {
@@ -154,12 +168,14 @@ contract Factory is OwnableLock {
     }
 
     function updatePartner1(address newAddress) external {
-        if (msg.sender != _partner1) revert OnlyParterCanUpdateItsAddres();
+        if (_partner1 != address(0) && msg.sender != _partner1)
+            revert OnlyParterCanUpdateItsAddres();
         _partner1 = newAddress;
     }
 
     function updatePartner2(address newAddress) external {
-        if (msg.sender != _partner2) revert OnlyParterCanUpdateItsAddres();
+        if (_partner2 != address(0) && msg.sender != _partner2)
+            revert OnlyParterCanUpdateItsAddres();
         _partner2 = newAddress;
     }
 

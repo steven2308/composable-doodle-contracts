@@ -6,12 +6,12 @@ import "@rmrk-team/evm-contracts/contracts/RMRK/equippable/RMRKEquippable.sol";
 import "@rmrk-team/evm-contracts/contracts/RMRK/extension/RMRKRoyalties.sol";
 import "@rmrk-team/evm-contracts/contracts/RMRK/utils/RMRKCollectionMetadata.sol";
 import "@rmrk-team/evm-contracts/contracts/RMRK/utils/RMRKMintingUtils.sol";
-import "./ISheet.sol";
+import "./IDoodleSheet.sol";
 
 error OnlyFactoryCanMint();
 
-contract Sheet is
-    ISheet,
+contract DoodleSheet is
+    IDoodleSheet,
     RMRKMintingUtils,
     RMRKCollectionMetadata,
     RMRKRoyalties,
@@ -140,7 +140,7 @@ contract Sheet is
         // * rightArm
         // * leftArm
 
-        _equip2(
+        _equip(
             IntakeEquip({
                 tokenId: tokenId,
                 childIndex: 0,
@@ -149,7 +149,7 @@ contract Sheet is
                 childResourceId: bodyResId
             })
         );
-        _equip2(
+        _equip(
             IntakeEquip({
                 tokenId: tokenId,
                 childIndex: 1,
@@ -158,7 +158,7 @@ contract Sheet is
                 childResourceId: headResId
             })
         );
-        _equip2(
+        _equip(
             IntakeEquip({
                 tokenId: tokenId,
                 childIndex: 2,
@@ -167,7 +167,7 @@ contract Sheet is
                 childResourceId: legsResId
             })
         );
-        _equip2(
+        _equip(
             IntakeEquip({
                 tokenId: tokenId,
                 childIndex: 3,
@@ -176,7 +176,7 @@ contract Sheet is
                 childResourceId: rightArmResId
             })
         );
-        _equip2(
+        _equip(
             IntakeEquip({
                 tokenId: tokenId,
                 childIndex: 4,
@@ -185,13 +185,5 @@ contract Sheet is
                 childResourceId: leftArmResId
             })
         );
-    }
-
-    function _acceptChild(uint256 tokenId, uint256 index) private {
-        // FIXME: Hopefully the core implementation provides this internal func
-    }
-
-    function _equip2(IntakeEquip memory data) private {
-        // FIXME: Hopefully the core implementation provides this internal func
     }
 }
