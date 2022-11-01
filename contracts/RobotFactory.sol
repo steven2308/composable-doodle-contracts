@@ -6,9 +6,10 @@ import "@rmrk-team/evm-contracts/contracts/RMRK/access/OwnableLock.sol";
 import "./IDoodlePart.sol";
 import "./IDoodleSheet.sol";
 
+error CombinationAlreadyMinted();
 error MintUnderpriced();
 error NothingToWithdraw();
-error OnlyParterCanUpdateItsAddres();
+error OnlyParterCanUpdateItsAddress();
 error OnlyParternsCanWithdraw();
 error SalesNotOpen();
 
@@ -27,6 +28,8 @@ contract RobotFactory is OwnableLock {
     uint256 private _partner2Balance;
     uint256 private constant _PARTNER_1_PART = 7000;
     uint256 private constant _BASE_POINTS = 10000;
+
+    mapping(uint256 => uint256) private _mintedCombinations;
 
     event BotBuilt(
         address indexed to,
@@ -72,13 +75,23 @@ contract RobotFactory is OwnableLock {
         if (_salesOpen == 0) revert SalesNotOpen();
         uint256 sheetId = IDoodleSheet(_sheet).mint(to, sheetResId);
 
-        uint256 totalPrice = IDoodlePart(_leftArm).pricePerMint(leftArmResId) +
-            IDoodlePart(_rightArm).pricePerMint(rightArmResId) +
-            IDoodlePart(_legs).pricePerMint(legsResId) +
-            IDoodlePart(_head).pricePerMint(headResId) +
-            IDoodlePart(_body).pricePerMint(bodyResId);
+        uint256 totalPrice = IDoodlePart(_leftArm).pricePerResource(
+            leftArmResId
+        ) +
+            IDoodlePart(_rightArm).pricePerResource(rightArmResId) +
+            IDoodlePart(_legs).pricePerResource(legsResId) +
+            IDoodlePart(_head).pricePerResource(headResId) +
+            IDoodlePart(_body).pricePerResource(bodyResId);
         if (totalPrice != msg.value) revert MintUnderpriced();
         _distributeValue();
+
+        _markCombinationAsMinted(
+            bodyResId,
+            headResId,
+            legsResId,
+            leftArmResId,
+            rightArmResId
+        );
 
         IDoodlePart(_leftArm).nestMint(_sheet, sheetId, leftArmResId);
         IDoodlePart(_rightArm).nestMint(_sheet, sheetId, rightArmResId);
@@ -113,6 +126,58 @@ contract RobotFactory is OwnableLock {
         uint256 partner2Part = msg.value - partner1Part;
         _partner1Balance += partner1Part;
         _partner2Balance += partner2Part;
+    }
+
+    function _markCombinationAsMinted(
+        uint64 bodyResId,
+        uint64 headResId,
+        uint64 legsResId,
+        uint64 leftArmResId,
+        uint64 rightArmResId
+    ) private {
+        // On mint there will be 2^8 resources, with this we can easily keep track of the original minted combinations
+        uint256 combinationId = _getCombinationId(
+            bodyResId,
+            headResId,
+            legsResId,
+            leftArmResId,
+            rightArmResId
+        );
+        if (_mintedCombinations[combinationId] == 1)
+            revert CombinationAlreadyMinted();
+        _mintedCombinations[combinationId] = 1;
+    }
+
+    function isCombinationMinted(
+        uint64 bodyResId,
+        uint64 headResId,
+        uint64 legsResId,
+        uint64 leftArmResId,
+        uint64 rightArmResId
+    ) external view returns (bool) {
+        uint256 combinationId = _getCombinationId(
+            bodyResId,
+            headResId,
+            legsResId,
+            leftArmResId,
+            rightArmResId
+        );
+        return _mintedCombinations[combinationId] == 1;
+    }
+
+    function _getCombinationId(
+        uint64 bodyResId,
+        uint64 headResId,
+        uint64 legsResId,
+        uint64 leftArmResId,
+        uint64 rightArmResId
+    ) private pure returns (uint256) {
+        uint256 combinationId = (uint256(bodyResId) << 128) |
+            (uint256(headResId) << 96) |
+            (uint256(legsResId) << 64) |
+            (uint256(leftArmResId) << 32) |
+            uint256(rightArmResId);
+        return combinationId;
     }
 
     function _equipAll(
@@ -169,13 +234,13 @@ contract RobotFactory is OwnableLock {
 
     function updatePartner1(address newAddress) external {
         if (_partner1 != address(0) && msg.sender != _partner1)
-            revert OnlyParterCanUpdateItsAddres();
+            revert OnlyParterCanUpdateItsAddress();
         _partner1 = newAddress;
     }
 
     function updatePartner2(address newAddress) external {
         if (_partner2 != address(0) && msg.sender != _partner2)
-            revert OnlyParterCanUpdateItsAddres();
+            revert OnlyParterCanUpdateItsAddress();
         _partner2 = newAddress;
     }
 
@@ -183,15 +248,15 @@ contract RobotFactory is OwnableLock {
         _salesOpen = open ? 1 : 0;
     }
 
-    function withdrawRaised() external {
+    function withdrawRaised(address to) external {
         if (msg.sender == _partner1) {
             uint256 amount = _partner1Balance;
             _partner1Balance = 0;
-            _withdraw(_partner1, amount);
+            _withdraw(to, amount);
         } else if (msg.sender == _partner2) {
             uint256 amount = _partner2Balance;
             _partner2Balance = 0;
-            _withdraw(_partner2, amount);
+            _withdraw(to, amount);
         } else {
             revert OnlyParternsCanWithdraw();
         }
@@ -202,5 +267,9 @@ contract RobotFactory is OwnableLock {
 
         (bool success, ) = to.call{value: amount}("");
         require(success, "Transfer failed.");
+    }
+
+    receive() external payable {
+        _distributeValue();
     }
 }

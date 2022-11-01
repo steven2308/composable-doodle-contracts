@@ -1,5 +1,5 @@
 import { ethers } from 'hardhat';
-import { DoodleBase, DoodleSheet, DoodlePart } from '../typechain-types';
+import { DoodleBase, DoodleSheet, DoodlePart, RobotFactory } from '../typechain-types';
 import {
   BODY_PART_ID,
   HEAD_PART_ID,
@@ -72,16 +72,17 @@ const equipRightArmsMetaUris = [
 // FIXME: Update ALL later when there are more resources
 const fullToEquip = [5, 6, 7, 8];
 const prices = [10, 10, 15, 50];
-const maxSupplies = [100, 100, 50, 10];
+const maxSupplies = [100, 100, 50, 2];
 
 interface Config {
   resourceId: number;
   fullToEquip: number;
   maxSupply: number;
-  pricePerMint: number;
+  pricePerResource: number;
 }
 
 async function setupParts(
+  factory: RobotFactory,
   base: DoodleBase,
   sheet: DoodleSheet,
   head: DoodlePart,
@@ -99,7 +100,7 @@ async function setupParts(
       resourceId: i + 1,
       fullToEquip: fullToEquip[i],
       maxSupply: maxSupplies[i],
-      pricePerMint: prices[i],
+      pricePerResource: prices[i],
     });
   }
 
@@ -127,6 +128,7 @@ async function setupParts(
   }
   await body.setValidParentForEquippableGroup(1, sheet.address, BODY_PART_ID);
   await body.configureResourceEntries(configs);
+  await rightArm.updateRoyaltyRecipient(factory.address);
 
   // HEAD
   for (let i = 0; i < mainHeadsMetaUris.length; i++) {
@@ -153,6 +155,7 @@ async function setupParts(
   }
   await head.setValidParentForEquippableGroup(1, sheet.address, HEAD_PART_ID);
   await head.configureResourceEntries(configs);
+  await rightArm.updateRoyaltyRecipient(factory.address);
 
   // Legs
   for (let i = 0; i < mainLegsMetaUris.length; i++) {
@@ -179,6 +182,7 @@ async function setupParts(
   }
   await legs.setValidParentForEquippableGroup(1, sheet.address, LEGS_PART_ID);
   await legs.configureResourceEntries(configs);
+  await rightArm.updateRoyaltyRecipient(factory.address);
 
   // Left ARM
   for (let i = 0; i < mainLeftArmsMetaUris.length; i++) {
@@ -205,6 +209,7 @@ async function setupParts(
   }
   await leftArm.setValidParentForEquippableGroup(1, sheet.address, LEFT_ARM_PART_ID);
   await leftArm.configureResourceEntries(configs);
+  await rightArm.updateRoyaltyRecipient(factory.address);
 
   // RIGHT ARM
   for (let i = 0; i < mainRightArmsMetaUris.length; i++) {
@@ -231,6 +236,7 @@ async function setupParts(
   }
   await rightArm.setValidParentForEquippableGroup(1, sheet.address, RIGHT_ARM_PART_ID);
   await rightArm.configureResourceEntries(configs);
+  await rightArm.updateRoyaltyRecipient(factory.address);
 
   console.log('Parts configured');
 }

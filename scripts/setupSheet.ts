@@ -1,4 +1,4 @@
-import { DoodleBase, DoodleSheet } from '../typechain-types';
+import { DoodleBase, DoodleSheet, RobotFactory } from '../typechain-types';
 import {
   BODY_PART_ID,
   HEAD_PART_ID,
@@ -15,7 +15,7 @@ const sheetMetaUris = [
   'ipfs://sheet/5',
 ];
 
-async function setupSheet(base: DoodleBase, sheet: DoodleSheet) {
+async function setupSheet(factory: RobotFactory, base: DoodleBase, sheet: DoodleSheet) {
   for (let i = 0; i < sheetMetaUris.length; i++) {
     await sheet.addResourceEntry(
       {
@@ -27,6 +27,7 @@ async function setupSheet(base: DoodleBase, sheet: DoodleSheet) {
       [],
       [BODY_PART_ID, HEAD_PART_ID, LEGS_PART_ID, LEFT_ARM_PART_ID, RIGHT_ARM_PART_ID],
     );
+    await sheet.updateRoyaltyRecipient(factory.address);
   }
 
   console.log('Sheet configured');

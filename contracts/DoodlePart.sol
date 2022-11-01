@@ -22,17 +22,16 @@ contract DoodlePart is
         uint64 resourceId;
         uint64 fullToEquip;
         uint64 maxSupply;
-        uint256 pricePerMint;
+        uint256 pricePerResource;
     }
 
     uint256 private constant _MAX_SUPPLY = 1000;
     uint256 private _totalSupply;
 
-    mapping(uint64 => uint256) private _pricePerMintPerResource;
     mapping(uint64 => uint256) private _totalSupplyPerResource;
     mapping(uint64 => uint256) private _maxSupplyPerResource;
     mapping(uint64 => uint64) private _fullToEquipResource;
-    mapping(uint64 => uint64) private _pricePerResource;
+    mapping(uint64 => uint256) private _pricePerResource;
     address private _factory;
 
     modifier onlyFactory() {
@@ -49,7 +48,7 @@ contract DoodlePart is
         string memory name,
         string memory symbol,
         string memory collectionMetadata_,
-        uint256 pricePerMint_,
+        uint256 pricePerResource_,
         address royaltyRecipient
     )
         RMRKCollectionMetadata(collectionMetadata_)
@@ -110,9 +109,9 @@ contract DoodlePart is
     {
         uint256 length = resourceConfigs.length;
         for (uint256 i; i < length; ) {
-            _pricePerMintPerResource[
-                resourceConfigs[i].resourceId
-            ] = resourceConfigs[i].pricePerMint;
+            _pricePerResource[resourceConfigs[i].resourceId] = resourceConfigs[
+                i
+            ].pricePerResource;
             _maxSupplyPerResource[
                 resourceConfigs[i].resourceId
             ] = resourceConfigs[i].maxSupply;
@@ -145,16 +144,12 @@ contract DoodlePart is
         return _maxSupplyPerResource[resourceId];
     }
 
-    function pricePerMint(uint64 resourceId) public view returns (uint256) {
-        return _pricePerMintPerResource[resourceId];
+    function pricePerResource(uint64 resourceId) public view returns (uint256) {
+        return _pricePerResource[resourceId];
     }
 
     function fullToEquip(uint64 resourceId) public view returns (uint64) {
         return _fullToEquipResource[resourceId];
-    }
-
-    function pricePerResource(uint64 resourceId) public view returns (uint64) {
-        return _pricePerResource[resourceId];
     }
 
     function updateRoyaltyRecipient(address newRoyaltyRecipient)
