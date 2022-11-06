@@ -1,84 +1,66 @@
-import { ethers } from 'hardhat';
+import { ethers, network } from 'hardhat';
+import { BigNumber } from 'ethers';
 import { DoodleBase, DoodleSheet, DoodlePart, RobotFactory } from '../typechain-types';
 import {
+  BASE_META_URI,
   BODY_PART_ID,
   HEAD_PART_ID,
-  LEGS_PART_ID,
   LEFT_ARM_PART_ID,
+  LEGS_PART_ID,
+  MAX_SUPPLIES,
+  PRICES,
   RIGHT_ARM_PART_ID,
+  TOTAL_PARTS,
+  sleep,
 } from './constants';
 
-const mainBodiesMetaUris = [
-  'ipfs://main/bodies/1',
-  'ipfs://main/bodies/2',
-  'ipfs://main/bodies/3',
-  'ipfs://main/bodies/4',
-];
-const mainHeadsMetaUris = [
-  'ipfs://main/heads/1',
-  'ipfs://main/heads/2',
-  'ipfs://main/heads/3',
-  'ipfs://main/heads/4',
-];
-const mainLegsMetaUris = [
-  'ipfs://main/legs/1',
-  'ipfs://main/legs/2',
-  'ipfs://main/legs/3',
-  'ipfs://main/legs/4',
-];
-const mainLeftArmsMetaUris = [
-  'ipfs://main/leftArms/1',
-  'ipfs://main/leftArms/2',
-  'ipfs://main/leftArms/3',
-  'ipfs://main/leftArms/4',
-];
-const mainRightArmsMetaUris = [
-  'ipfs://main/rightArms/1',
-  'ipfs://main/rightArms/2',
-  'ipfs://main/rightArms/3',
-  'ipfs://main/rightArms/4',
-];
+const mainBodiesMetaUris = Array.from(
+  new Array(TOTAL_PARTS),
+  (_, index) => `${BASE_META_URI}/main/bodies/${index + 1}`,
+);
+const mainHeadsMetaUris = Array.from(
+  new Array(TOTAL_PARTS),
+  (_, index) => `${BASE_META_URI}/main/heads/${index + 1}`,
+);
+const mainLegsMetaUris = Array.from(
+  new Array(TOTAL_PARTS),
+  (_, index) => `${BASE_META_URI}/main/legs/${index + 1}`,
+);
+const mainLeftArmsMetaUris = Array.from(
+  new Array(TOTAL_PARTS),
+  (_, index) => `${BASE_META_URI}/main/leftArms/${index + 1}`,
+);
+const mainRightArmsMetaUris = Array.from(
+  new Array(TOTAL_PARTS),
+  (_, index) => `${BASE_META_URI}/main/rightArms/${index + 1}`,
+);
 
-const equipBodiesMetaUris = [
-  'ipfs://equip/bodies/1',
-  'ipfs://equip/bodies/2',
-  'ipfs://equip/bodies/3',
-  'ipfs://equip/bodies/4',
-];
-const equipHeadsMetaUris = [
-  'ipfs://equip/heads/1',
-  'ipfs://equip/heads/2',
-  'ipfs://equip/heads/3',
-  'ipfs://equip/heads/4',
-];
-const equipLegsMetaUris = [
-  'ipfs://equip/legs/1',
-  'ipfs://equip/legs/2',
-  'ipfs://equip/legs/3',
-  'ipfs://equip/legs/4',
-];
-const equipLeftArmsMetaUris = [
-  'ipfs://equip/leftArms/1',
-  'ipfs://equip/leftArms/2',
-  'ipfs://equip/leftArms/3',
-  'ipfs://equip/leftArms/4',
-];
-const equipRightArmsMetaUris = [
-  'ipfs://equip/rightArms/1',
-  'ipfs://equip/rightArms/2',
-  'ipfs://equip/rightArms/3',
-  'ipfs://equip/rightArms/4',
-];
-// FIXME: Update ALL later when there are more resources
-const fullToEquip = [5, 6, 7, 8];
-const prices = [10, 10, 15, 50];
-const maxSupplies = [100, 100, 50, 2];
+const equipBodiesMetaUris = Array.from(
+  new Array(TOTAL_PARTS),
+  (_, index) => `${BASE_META_URI}/equip/bodies/${index + 1}`,
+);
+const equipHeadsMetaUris = Array.from(
+  new Array(TOTAL_PARTS),
+  (_, index) => `${BASE_META_URI}/equip/heads/${index + 1}`,
+);
+const equipLegsMetaUris = Array.from(
+  new Array(TOTAL_PARTS),
+  (_, index) => `${BASE_META_URI}/equip/legs/${index + 1}`,
+);
+const equipLeftArmsMetaUris = Array.from(
+  new Array(TOTAL_PARTS),
+  (_, index) => `${BASE_META_URI}/equip/leftArms/${index + 1}`,
+);
+const equipRightArmsMetaUris = Array.from(
+  new Array(TOTAL_PARTS),
+  (_, index) => `${BASE_META_URI}/equip/rightArms/${index + 1}`,
+);
 
 interface Config {
   resourceId: number;
   fullToEquip: number;
   maxSupply: number;
-  pricePerResource: number;
+  pricePerResource: BigNumber;
 }
 
 async function setupParts(
@@ -91,20 +73,19 @@ async function setupParts(
   leftArm: DoodlePart,
   rightArm: DoodlePart,
 ) {
-  // BODY
-
   // This config is the same for all parts
   let configs: Array<Config> = Array();
-  for (let i = 0; i < mainBodiesMetaUris.length; i++) {
+  for (let i = 0; i < TOTAL_PARTS; i++) {
     configs.push({
       resourceId: i + 1,
-      fullToEquip: fullToEquip[i],
-      maxSupply: maxSupplies[i],
-      pricePerResource: prices[i],
+      fullToEquip: TOTAL_PARTS + i + 1,
+      maxSupply: MAX_SUPPLIES[i],
+      pricePerResource: PRICES[i],
     });
   }
 
-  for (let i = 0; i < mainBodiesMetaUris.length; i++) {
+  // BODIES
+  for (let i = 0; i < TOTAL_PARTS; i++) {
     await body.addResourceEntry(
       {
         id: i + 1,
@@ -117,7 +98,7 @@ async function setupParts(
     );
     await body.addResourceEntry(
       {
-        id: mainBodiesMetaUris.length + i + 1,
+        id: TOTAL_PARTS + i + 1,
         equippableGroupId: 1,
         baseAddress: base.address,
         metadataURI: equipBodiesMetaUris[i],
@@ -128,10 +109,12 @@ async function setupParts(
   }
   await body.setValidParentForEquippableGroup(1, sheet.address, BODY_PART_ID);
   await body.configureResourceEntries(configs);
-  await rightArm.updateRoyaltyRecipient(factory.address);
+  await body.updateRoyaltyRecipient(factory.address);
+  console.log('Body configured');
+  await sleep(13);
 
-  // HEAD
-  for (let i = 0; i < mainHeadsMetaUris.length; i++) {
+  // HEADS
+  for (let i = 0; i < TOTAL_PARTS; i++) {
     await head.addResourceEntry(
       {
         id: i + 1,
@@ -144,7 +127,7 @@ async function setupParts(
     );
     await head.addResourceEntry(
       {
-        id: mainHeadsMetaUris.length + i + 1,
+        id: TOTAL_PARTS + i + 1,
         equippableGroupId: 1,
         baseAddress: base.address,
         metadataURI: equipHeadsMetaUris[i],
@@ -155,10 +138,12 @@ async function setupParts(
   }
   await head.setValidParentForEquippableGroup(1, sheet.address, HEAD_PART_ID);
   await head.configureResourceEntries(configs);
-  await rightArm.updateRoyaltyRecipient(factory.address);
+  await head.updateRoyaltyRecipient(factory.address);
+  console.log('Head configured');
+  await sleep(13);
 
-  // Legs
-  for (let i = 0; i < mainLegsMetaUris.length; i++) {
+  // LEGS
+  for (let i = 0; i < TOTAL_PARTS; i++) {
     await legs.addResourceEntry(
       {
         id: i + 1,
@@ -171,7 +156,7 @@ async function setupParts(
     );
     await legs.addResourceEntry(
       {
-        id: mainLegsMetaUris.length + i + 1,
+        id: TOTAL_PARTS + i + 1,
         equippableGroupId: 1,
         baseAddress: base.address,
         metadataURI: equipLegsMetaUris[i],
@@ -182,10 +167,12 @@ async function setupParts(
   }
   await legs.setValidParentForEquippableGroup(1, sheet.address, LEGS_PART_ID);
   await legs.configureResourceEntries(configs);
-  await rightArm.updateRoyaltyRecipient(factory.address);
+  await legs.updateRoyaltyRecipient(factory.address);
+  console.log('Legs configured');
+  await sleep(13);
 
-  // Left ARM
-  for (let i = 0; i < mainLeftArmsMetaUris.length; i++) {
+  // LEFT ARMS
+  for (let i = 0; i < TOTAL_PARTS; i++) {
     await leftArm.addResourceEntry(
       {
         id: i + 1,
@@ -198,7 +185,7 @@ async function setupParts(
     );
     await leftArm.addResourceEntry(
       {
-        id: mainLeftArmsMetaUris.length + i + 1,
+        id: TOTAL_PARTS + i + 1,
         equippableGroupId: 1,
         baseAddress: base.address,
         metadataURI: equipLeftArmsMetaUris[i],
@@ -209,10 +196,12 @@ async function setupParts(
   }
   await leftArm.setValidParentForEquippableGroup(1, sheet.address, LEFT_ARM_PART_ID);
   await leftArm.configureResourceEntries(configs);
-  await rightArm.updateRoyaltyRecipient(factory.address);
+  await leftArm.updateRoyaltyRecipient(factory.address);
+  console.log('Left arm Configuredleft');
+  await sleep(13);
 
-  // RIGHT ARM
-  for (let i = 0; i < mainRightArmsMetaUris.length; i++) {
+  // RIGHT ARMS
+  for (let i = 0; i < TOTAL_PARTS; i++) {
     await rightArm.addResourceEntry(
       {
         id: i + 1,
@@ -225,7 +214,7 @@ async function setupParts(
     );
     await rightArm.addResourceEntry(
       {
-        id: mainRightArmsMetaUris.length + i + 1,
+        id: TOTAL_PARTS + i + 1,
         equippableGroupId: 1,
         baseAddress: base.address,
         metadataURI: equipRightArmsMetaUris[i],
@@ -237,8 +226,7 @@ async function setupParts(
   await rightArm.setValidParentForEquippableGroup(1, sheet.address, RIGHT_ARM_PART_ID);
   await rightArm.configureResourceEntries(configs);
   await rightArm.updateRoyaltyRecipient(factory.address);
-
-  console.log('Parts configured');
+  console.log('Right arm Configuredleft');
 }
 
 export default setupParts;

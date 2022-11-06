@@ -48,7 +48,6 @@ contract DoodlePart is
         string memory name,
         string memory symbol,
         string memory collectionMetadata_,
-        uint256 pricePerResource_,
         address royaltyRecipient
     )
         RMRKCollectionMetadata(collectionMetadata_)

@@ -15,7 +15,6 @@ async function deployContracts() {
       'Composable Doodle Robot Head',
       'CDRH',
       'ipfs:/head-meta',
-      ONE_GLMR,
       ADDRESS_ZERO,
     )
   );
@@ -24,7 +23,6 @@ async function deployContracts() {
       'Composable Doodle Robot Body',
       'CDRB',
       'ipfs:/head-meta',
-      ONE_GLMR,
       ADDRESS_ZERO,
     )
   );
@@ -33,7 +31,6 @@ async function deployContracts() {
       'Composable Doodle Robot Legs',
       'CDRL',
       'ipfs:/head-meta',
-      ONE_GLMR,
       ADDRESS_ZERO,
     )
   );
@@ -42,7 +39,6 @@ async function deployContracts() {
       'Composable Doodle Robot Left Arm',
       'CDRLA',
       'ipfs:/head-meta',
-      ONE_GLMR,
       ADDRESS_ZERO,
     )
   );
@@ -51,7 +47,6 @@ async function deployContracts() {
       'Composable Doodle Robot Right Arm',
       'CDRRA',
       'ipfs:/head-meta',
-      ONE_GLMR,
       ADDRESS_ZERO,
     )
   );

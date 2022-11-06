@@ -1,7 +1,8 @@
-import deployContracts from '../scripts/deployContracts';
-import setupBase from '../scripts/setupBase';
-import setupParts from '../scripts/setupParts';
-import setupSheet from '../scripts/setupSheet';
+import deployContracts from './deployContracts';
+import setupBase from './setupBase';
+import setupParts from './setupParts';
+import setupSheet from './setupSheet';
+import { sleep } from './constants';
 
 async function main() {
   const { base, sheet, head, body, legs, leftArm, rightArm, factory } = await deployContracts();
@@ -13,9 +14,12 @@ async function main() {
   console.log('LeftArm deployed to: ', leftArm.address);
   console.log('RightArm deployed to: ', rightArm.address);
   console.log('Factory deployed to: ', factory.address);
+  await sleep(13);
 
   await setupBase(base, head, body, legs, leftArm, rightArm);
+  await sleep(13);
   await setupSheet(factory, base, sheet);
+  await sleep(13);
   await setupParts(factory, base, sheet, head, body, legs, leftArm, rightArm);
 }
 

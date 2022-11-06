@@ -24,6 +24,7 @@ contract DoodleSheet is
     uint64 private constant _RIGHT_ARM_PART_ID = 5;
 
     address private _factory;
+    mapping(uint64 => uint256) private _totalSupplyPerResource;
 
     modifier onlyFactory() {
         _onlyFactory();
@@ -46,11 +47,16 @@ contract DoodleSheet is
         uint256 tokenId = _totalSupply + 1;
         unchecked {
             _totalSupply += 1;
+            _totalSupplyPerResource[resourceId] += 1;
         }
         _mint(to, tokenId);
         _addResourceToToken(tokenId, resourceId, uint64(0));
         _acceptResource(tokenId, 0);
         return tokenId;
+    }
+
+    function totalSupply(uint64 resourceId) public view returns (uint256) {
+        return _totalSupplyPerResource[resourceId];
     }
 
     function addResourceEntry(
