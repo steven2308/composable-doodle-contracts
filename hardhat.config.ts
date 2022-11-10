@@ -16,6 +16,13 @@ const config: HardhatUserConfig = {
       },
     },
   },
+  gasReporter: {
+    enabled: true,
+    currency: 'USD',
+    coinmarketcap: process.env.COIN_MARKET_CAP_KEY || '',
+    token: 'GLMR',
+    gasPriceApi: 'https://api-moonbeam.moonscan.io/api?module=proxy&action=eth_gasPrice',
+  },
   networks: {
     moonbaseAlpha: {
       url: 'https://rpc.testnet.moonbeam.network',
