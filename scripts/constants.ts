@@ -18,8 +18,8 @@ const ADDRESS_ZERO = ethers.constants.AddressZero;
 const ROYALTIES = ethers.BigNumber.from(50_000); // 5%
 
 const BASE_META_URI = 'ipfs://QmVVXtXk8z1ExDdFy5WCFX5cWDVTqzaqACH57fP9r3wv2V';
-const TOTAL_PARTS = 5;
-const BASE_PRICES = [10, 10, 10, 10, 15, 15, 15, 15, 24, 24, 24, 24, 105, 105, 225, 225];
+const TOTAL_PARTS = 16;
+const BASE_PRICES = [5, 5, 5, 5, 8, 8, 8, 8, 12, 12, 12, 12, 52, 52, 112, 112];
 
 let PRICES: Array<BigNumber>;
 let MAX_SUPPLIES: Array<number>;
