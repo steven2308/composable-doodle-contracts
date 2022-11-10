@@ -16,12 +16,10 @@ const sheetMetaUris = Array.from(
 async function setupSheet(factory: RobotFactory, base: DoodleBase, sheet: DoodleSheet) {
   for (let i = 0; i < sheetMetaUris.length; i++) {
     await sheet.addResourceEntry(
-      {
-        id: i + 1,
-        equippableGroupId: 0,
-        baseAddress: base.address,
-        metadataURI: sheetMetaUris[i],
-      },
+      i + 1,
+      0,
+      base.address,
+      sheetMetaUris[i],
       [],
       [BODY_PART_ID, HEAD_PART_ID, LEGS_PART_ID, LEFT_ARM_PART_ID, RIGHT_ARM_PART_ID],
     );

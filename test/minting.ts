@@ -2,13 +2,29 @@ import { expect } from 'chai';
 import { ethers } from 'hardhat';
 import { BigNumber } from 'ethers';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
-import { DoodleBase, DoodlePart, DoodleSheet, RobotFactory } from '../typechain-types';
+import {
+  DoodleBase,
+  DoodlePart,
+  DoodleSheet,
+  RobotFactory,
+  RMRKEquipRenderUtils,
+} from '../typechain-types';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import deployContracts from '../scripts/deployContracts';
 import setupBase from '../scripts/setupBase';
 import setupParts from '../scripts/setupParts';
 import setupSheet from '../scripts/setupSheet';
-import { BASE_META_URI, MAX_SUPPLIES, PRICES, TOTAL_PARTS } from '../scripts/constants';
+import {
+  BASE_META_URI,
+  BODY_PART_ID,
+  HEAD_PART_ID,
+  LEGS_PART_ID,
+  LEFT_ARM_PART_ID,
+  RIGHT_ARM_PART_ID,
+  MAX_SUPPLIES,
+  PRICES,
+} from '../scripts/constants';
+import { base } from '../typechain-types/@rmrk-team/evm-contracts/contracts/RMRK';
 
 async function allContractsFactory(): Promise<{
   base: DoodleBase;
@@ -19,6 +35,7 @@ async function allContractsFactory(): Promise<{
   leftArm: DoodlePart;
   rightArm: DoodlePart;
   factory: RobotFactory;
+  renderUtilsEquip: RMRKEquipRenderUtils;
 }> {
   const { base, sheet, head, body, legs, leftArm, rightArm, factory } = await deployContracts();
 
@@ -26,17 +43,23 @@ async function allContractsFactory(): Promise<{
   await setupSheet(factory, base, sheet);
   await setupParts(factory, base, sheet, head, body, legs, leftArm, rightArm);
 
-  return { base, sheet, head, body, legs, leftArm, rightArm, factory };
+  const renderUtilsEquipFactory = await ethers.getContractFactory('RMRKEquipRenderUtils');
+  const renderUtilsEquip: RMRKEquipRenderUtils = await renderUtilsEquipFactory.deploy();
+  console.log('Render Utils (Equippable) deployed at ', renderUtilsEquip.address);
+
+  return { base, sheet, head, body, legs, leftArm, rightArm, factory, renderUtilsEquip };
 }
 
 describe('Doodle Minting', async () => {
   let factory: RobotFactory;
+  let base: DoodleBase;
   let sheet: DoodleSheet;
   let head: DoodlePart;
   let body: DoodlePart;
   let legs: DoodlePart;
   let leftArm: DoodlePart;
   let rightArm: DoodlePart;
+  let renderUtilsEquip: RMRKEquipRenderUtils;
 
   let addrs: SignerWithAddress[];
   let owner: SignerWithAddress;
@@ -46,9 +69,8 @@ describe('Doodle Minting', async () => {
 
   beforeEach(async function () {
     [owner, partner1, partner2, buyer, buyer, ...addrs] = await ethers.getSigners();
-    ({ sheet, head, body, legs, leftArm, rightArm, factory } = await loadFixture(
-      allContractsFactory,
-    ));
+    ({ base, sheet, head, body, legs, leftArm, rightArm, factory, renderUtilsEquip } =
+      await loadFixture(allContractsFactory));
 
     await factory.updatePartner1(partner1.address);
     await factory.updatePartner2(partner2.address);
@@ -102,6 +124,66 @@ describe('Doodle Minting', async () => {
       expect(await head['totalSupply(uint64)'](1)).to.eql(bn(1));
       expect(await head.tokenURI(1)).to.eql(`${BASE_META_URI}/main/heads/1`);
       expect(await sheet.tokenURI(1)).to.eql(`${BASE_META_URI}/sheets/1`);
+    });
+
+    it('can compose equippables for minted sheet', async () => {
+      await factory.setSalesOpen(true);
+      await factory
+        .connect(buyer)
+        .mint(buyer.address, 1, 1, 1, 1, 1, 1, { value: priceFromResources(2, 1, 2, 1, 2) });
+      expect(await renderUtilsEquip.composeEquippables(sheet.address, 1, 1)).to.eql([
+        'ipfs://QmVVXtXk8z1ExDdFy5WCFX5cWDVTqzaqACH57fP9r3wv2V/sheets/1',
+        bn(0),
+        base.address,
+        [],
+        [
+          [
+            bn(BODY_PART_ID),
+            bn(6),
+            3,
+            body.address,
+            bn(1),
+            'ipfs://QmVVXtXk8z1ExDdFy5WCFX5cWDVTqzaqACH57fP9r3wv2V/equip/bodies/1',
+            '',
+          ],
+          [
+            bn(HEAD_PART_ID),
+            bn(6),
+            2,
+            head.address,
+            bn(1),
+            'ipfs://QmVVXtXk8z1ExDdFy5WCFX5cWDVTqzaqACH57fP9r3wv2V/equip/heads/1',
+            '',
+          ],
+          [
+            bn(LEGS_PART_ID),
+            bn(6),
+            2,
+            legs.address,
+            bn(1),
+            'ipfs://QmVVXtXk8z1ExDdFy5WCFX5cWDVTqzaqACH57fP9r3wv2V/equip/legs/1',
+            '',
+          ],
+          [
+            bn(LEFT_ARM_PART_ID),
+            bn(6),
+            2,
+            leftArm.address,
+            bn(1),
+            'ipfs://QmVVXtXk8z1ExDdFy5WCFX5cWDVTqzaqACH57fP9r3wv2V/equip/leftArms/1',
+            '',
+          ],
+          [
+            bn(RIGHT_ARM_PART_ID),
+            bn(6),
+            2,
+            rightArm.address,
+            bn(1),
+            'ipfs://QmVVXtXk8z1ExDdFy5WCFX5cWDVTqzaqACH57fP9r3wv2V/equip/rightArms/1',
+            '',
+          ],
+        ],
+      ]);
     });
 
     it('cannot mint same combination twice', async () => {

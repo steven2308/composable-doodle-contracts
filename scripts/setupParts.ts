@@ -87,22 +87,18 @@ async function setupParts(
   // BODIES
   for (let i = 0; i < TOTAL_PARTS; i++) {
     await body.addResourceEntry(
-      {
-        id: i + 1,
-        equippableGroupId: 0,
-        baseAddress: ethers.constants.AddressZero,
-        metadataURI: mainBodiesMetaUris[i],
-      },
+      i + 1,
+      0,
+      ethers.constants.AddressZero,
+      mainBodiesMetaUris[i],
       [],
       [],
     );
     await body.addResourceEntry(
-      {
-        id: TOTAL_PARTS + i + 1,
-        equippableGroupId: 1,
-        baseAddress: base.address,
-        metadataURI: equipBodiesMetaUris[i],
-      },
+      TOTAL_PARTS + i + 1,
+      1,
+      base.address,
+      equipBodiesMetaUris[i],
       [],
       [],
     );
@@ -116,22 +112,18 @@ async function setupParts(
   // HEADS
   for (let i = 0; i < TOTAL_PARTS; i++) {
     await head.addResourceEntry(
-      {
-        id: i + 1,
-        equippableGroupId: 0,
-        baseAddress: ethers.constants.AddressZero,
-        metadataURI: mainHeadsMetaUris[i],
-      },
+      i + 1,
+      0,
+      ethers.constants.AddressZero,
+      mainHeadsMetaUris[i],
       [],
       [],
     );
     await head.addResourceEntry(
-      {
-        id: TOTAL_PARTS + i + 1,
-        equippableGroupId: 1,
-        baseAddress: base.address,
-        metadataURI: equipHeadsMetaUris[i],
-      },
+      TOTAL_PARTS + i + 1,
+      1,
+      base.address,
+      equipHeadsMetaUris[i],
       [],
       [],
     );
@@ -145,22 +137,18 @@ async function setupParts(
   // LEGS
   for (let i = 0; i < TOTAL_PARTS; i++) {
     await legs.addResourceEntry(
-      {
-        id: i + 1,
-        equippableGroupId: 0,
-        baseAddress: ethers.constants.AddressZero,
-        metadataURI: mainLegsMetaUris[i],
-      },
+      i + 1,
+      0,
+      ethers.constants.AddressZero,
+      mainLegsMetaUris[i],
       [],
       [],
     );
     await legs.addResourceEntry(
-      {
-        id: TOTAL_PARTS + i + 1,
-        equippableGroupId: 1,
-        baseAddress: base.address,
-        metadataURI: equipLegsMetaUris[i],
-      },
+      TOTAL_PARTS + i + 1,
+      1,
+      base.address,
+      equipLegsMetaUris[i],
       [],
       [],
     );
@@ -174,22 +162,18 @@ async function setupParts(
   // LEFT ARMS
   for (let i = 0; i < TOTAL_PARTS; i++) {
     await leftArm.addResourceEntry(
-      {
-        id: i + 1,
-        equippableGroupId: 0,
-        baseAddress: ethers.constants.AddressZero,
-        metadataURI: mainLeftArmsMetaUris[i],
-      },
+      i + 1,
+      0,
+      ethers.constants.AddressZero,
+      mainLeftArmsMetaUris[i],
       [],
       [],
     );
     await leftArm.addResourceEntry(
-      {
-        id: TOTAL_PARTS + i + 1,
-        equippableGroupId: 1,
-        baseAddress: base.address,
-        metadataURI: equipLeftArmsMetaUris[i],
-      },
+      TOTAL_PARTS + i + 1,
+      1,
+      base.address,
+      equipLeftArmsMetaUris[i],
       [],
       [],
     );
@@ -203,22 +187,18 @@ async function setupParts(
   // RIGHT ARMS
   for (let i = 0; i < TOTAL_PARTS; i++) {
     await rightArm.addResourceEntry(
-      {
-        id: i + 1,
-        equippableGroupId: 0,
-        baseAddress: ethers.constants.AddressZero,
-        metadataURI: mainRightArmsMetaUris[i],
-      },
+      i + 1,
+      0,
+      ethers.constants.AddressZero,
+      mainRightArmsMetaUris[i],
       [],
       [],
     );
     await rightArm.addResourceEntry(
-      {
-        id: TOTAL_PARTS + i + 1,
-        equippableGroupId: 1,
-        baseAddress: base.address,
-        metadataURI: equipRightArmsMetaUris[i],
-      },
+      TOTAL_PARTS + i + 1,
+      1,
+      base.address,
+      equipRightArmsMetaUris[i],
       [],
       [],
     );

@@ -3,6 +3,9 @@
 pragma solidity ^0.8.16;
 
 import "@rmrk-team/evm-contracts/contracts/RMRK/access/OwnableLock.sol";
+// We import these 2 just so it's included on typechain. We'll need it to compose NFTs
+import "@rmrk-team/evm-contracts/contracts/RMRK/utils/RMRKEquipRenderUtils.sol";
+import "@rmrk-team/evm-contracts/contracts/RMRK/utils/RMRKMultiResourceRenderUtils.sol";
 import "./IDoodlePart.sol";
 import "./IDoodleSheet.sol";
 
@@ -99,7 +102,14 @@ contract RobotFactory is OwnableLock {
         IDoodlePart(_head).nestMint(_sheet, sheetId, headResId);
         IDoodlePart(_body).nestMint(_sheet, sheetId, bodyResId);
 
-        IDoodleSheet(_sheet).acceptChildrenFromFactory(sheetId);
+        IDoodleSheet(_sheet).acceptChildrenFromFactory(
+            sheetId,
+            _body,
+            _head,
+            _legs,
+            _rightArm,
+            _leftArm
+        );
         _equipAll(
             sheetId,
             sheetResId,

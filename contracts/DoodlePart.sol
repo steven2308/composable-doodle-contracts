@@ -75,17 +75,27 @@ contract DoodlePart is
         _nestMint(parent, tokenId, destinationId);
         _addResourceToToken(tokenId, equipResourceId, uint64(0));
         _addResourceToToken(tokenId, resourceId, uint64(0));
-        _acceptResource(tokenId, 1);
-        _acceptResource(tokenId, 0);
+        _acceptResource(tokenId, 1, resourceId);
+        _acceptResource(tokenId, 0, equipResourceId);
         return tokenId;
     }
 
     function addResourceEntry(
-        ExtendedResource calldata resource,
-        uint64[] calldata fixedPartIds,
-        uint64[] calldata slotPartIds
+        uint64 id,
+        uint64 equippableGroupId,
+        address baseAddress,
+        string memory metadataURI,
+        uint64[] memory fixedPartIds,
+        uint64[] memory slotPartIds
     ) external onlyOwnerOrContributor {
-        _addResourceEntry(resource, fixedPartIds, slotPartIds);
+        _addResourceEntry(
+            id,
+            equippableGroupId,
+            baseAddress,
+            metadataURI,
+            fixedPartIds,
+            slotPartIds
+        );
     }
 
     function addResourceToTokens(
@@ -102,10 +112,9 @@ contract DoodlePart is
         }
     }
 
-    function configureResourceEntries(ResourceConfig[] memory resourceConfigs)
-        external
-        onlyOwner
-    {
+    function configureResourceEntries(
+        ResourceConfig[] memory resourceConfigs
+    ) external onlyOwner {
         uint256 length = resourceConfigs.length;
         for (uint256 i; i < length; ) {
             _pricePerResource[resourceConfigs[i].resourceId] = resourceConfigs[
@@ -151,11 +160,9 @@ contract DoodlePart is
         return _fullToEquipResource[resourceId];
     }
 
-    function updateRoyaltyRecipient(address newRoyaltyRecipient)
-        external
-        override
-        onlyOwner
-    {
+    function updateRoyaltyRecipient(
+        address newRoyaltyRecipient
+    ) external override onlyOwner {
         _setRoyaltyRecipient(newRoyaltyRecipient);
     }
 
@@ -171,13 +178,12 @@ contract DoodlePart is
         if (_factory != _msgSender()) revert OnlyFactoryCanMint();
     }
 
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        override
-        returns (string memory)
-    {
-        return getResourceMetaForToken(tokenId, 0);
+    function tokenURI(
+        uint256 tokenId
+    ) public view override returns (string memory) {
+        _requireMinted(tokenId);
+        uint64 mainResource = _activeResources[tokenId][0];
+        return getResourceMetadata(tokenId, mainResource);
     }
 
     function totalSupply() public view returns (uint256) {

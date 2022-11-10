@@ -9,10 +9,9 @@ interface IDoodlePart {
         uint64 resourceId
     ) external returns (uint256);
 
-    function pricePerResource(uint64 resourceId)
-        external
-        view
-        returns (uint256);
+    function pricePerResource(
+        uint64 resourceId
+    ) external view returns (uint256);
 
     function fullToEquip(uint64 resourceId) external view returns (uint64);
 }

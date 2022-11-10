@@ -5,7 +5,14 @@ pragma solidity ^0.8.16;
 interface IDoodleSheet {
     function mint(address to, uint64 resourceId) external returns (uint256);
 
-    function acceptChildrenFromFactory(uint256 tokenId) external;
+    function acceptChildrenFromFactory(
+        uint256 tokenId,
+        address body,
+        address head,
+        address legs,
+        address rightArm,
+        address leftArm
+    ) external;
 
     function equipFromFactory(
         uint256 tokenId,

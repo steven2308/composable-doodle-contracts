@@ -31,19 +31,20 @@ contract DoodleSheet is
         _;
     }
 
-    constructor(string memory collectionMetadata_, address royaltyRecipient)
+    constructor(
+        string memory collectionMetadata_,
+        address royaltyRecipient
+    )
         RMRKMintingUtils(1000, 0)
         RMRKCollectionMetadata(collectionMetadata_)
         RMRKRoyalties(royaltyRecipient, 500) // 500 -> 5%
         RMRKEquippable("Composable Doodle Sheet", "CDS")
     {}
 
-    function mint(address to, uint64 resourceId)
-        external
-        saleIsOpen
-        onlyFactory
-        returns (uint256)
-    {
+    function mint(
+        address to,
+        uint64 resourceId
+    ) external saleIsOpen onlyFactory returns (uint256) {
         uint256 tokenId = _totalSupply + 1;
         unchecked {
             _totalSupply += 1;
@@ -51,7 +52,7 @@ contract DoodleSheet is
         }
         _mint(to, tokenId);
         _addResourceToToken(tokenId, resourceId, uint64(0));
-        _acceptResource(tokenId, 0);
+        _acceptResource(tokenId, 0, resourceId);
         return tokenId;
     }
 
@@ -60,11 +61,21 @@ contract DoodleSheet is
     }
 
     function addResourceEntry(
-        ExtendedResource calldata resource,
-        uint64[] calldata fixedPartIds,
-        uint64[] calldata slotPartIds
+        uint64 id,
+        uint64 equippableGroupId,
+        address baseAddress,
+        string memory metadataURI,
+        uint64[] memory fixedPartIds,
+        uint64[] memory slotPartIds
     ) external onlyOwnerOrContributor {
-        _addResourceEntry(resource, fixedPartIds, slotPartIds);
+        _addResourceEntry(
+            id,
+            equippableGroupId,
+            baseAddress,
+            metadataURI,
+            fixedPartIds,
+            slotPartIds
+        );
     }
 
     function addResourceToTokens(
@@ -93,11 +104,9 @@ contract DoodleSheet is
         );
     }
 
-    function updateRoyaltyRecipient(address newRoyaltyRecipient)
-        external
-        override
-        onlyOwner
-    {
+    function updateRoyaltyRecipient(
+        address newRoyaltyRecipient
+    ) external override onlyOwner {
         _setRoyaltyRecipient(newRoyaltyRecipient);
     }
 
@@ -113,21 +122,28 @@ contract DoodleSheet is
         if (_factory != _msgSender()) revert OnlyFactoryCanMint();
     }
 
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        override
-        returns (string memory)
-    {
-        return getResourceMetaForToken(tokenId, 0);
+    function tokenURI(
+        uint256 tokenId
+    ) public view override returns (string memory) {
+        _requireMinted(tokenId);
+        uint64 mainResource = _activeResources[tokenId][0];
+        return getResourceMetadata(tokenId, mainResource);
     }
 
-    function acceptChildrenFromFactory(uint256 tokenId) external onlyFactory {
-        _acceptChild(tokenId, 4);
-        _acceptChild(tokenId, 3);
-        _acceptChild(tokenId, 2);
-        _acceptChild(tokenId, 1);
-        _acceptChild(tokenId, 0);
+    function acceptChildrenFromFactory(
+        uint256 tokenId,
+        address body,
+        address head,
+        address legs,
+        address rightArm,
+        address leftArm
+    ) external onlyFactory {
+        // tokenId is the same across all part since they are always minted together
+        _acceptChild(tokenId, 4, body, tokenId);
+        _acceptChild(tokenId, 3, head, tokenId);
+        _acceptChild(tokenId, 2, legs, tokenId);
+        _acceptChild(tokenId, 1, rightArm, tokenId);
+        _acceptChild(tokenId, 0, leftArm, tokenId);
     }
 
     function equipFromFactory(
