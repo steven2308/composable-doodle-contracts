@@ -37,8 +37,9 @@ if (IS_PROD) {
 }
 
 async function sleep(seconds: number) {
-  if (IS_PROD)
-    await new Promise((f) => setTimeout(f, seconds * 1000));
+  // if (IS_PROD)
+  // console.log('Sleeping...')
+  // await new Promise((f) => setTimeout(f, seconds * 1000));
 }
 
 export {

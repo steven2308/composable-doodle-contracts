@@ -1,6 +1,6 @@
 import deployContracts from './deployContracts';
 import setupBase from './setupBase';
-import setupParts from './setupParts';
+// import setupParts from './setupParts';
 import setupSheet from './setupSheet';
 import { sleep } from './constants';
 
@@ -14,13 +14,13 @@ async function main() {
   console.log('LeftArm deployed to: ', leftArm.address);
   console.log('RightArm deployed to: ', rightArm.address);
   console.log('Factory deployed to: ', factory.address);
-  await sleep(13);
+  await sleep(12);
 
   await setupBase(base, head, body, legs, leftArm, rightArm);
-  await sleep(13);
+  await sleep(12);
   await setupSheet(factory, base, sheet);
-  await sleep(13);
-  await setupParts(factory, base, sheet, head, body, legs, leftArm, rightArm);
+  // await sleep(12);
+  // await setupParts(factory, base, sheet, head, body, legs, leftArm, rightArm);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

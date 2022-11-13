@@ -1,7 +1,7 @@
 {
-  "name": "snake-soldiers",
+  "name": "composable-doodles",
   "version": "0.1.0",
-  "description": "NFT collection with a supply of at most 5000 unique units, distributed in 3 ranks.",
+  "description": "NFT collections of composable bot parts.",
   "scripts": {
     "test": "npx hardhat test",
     "typechain": "hardhat typechain",

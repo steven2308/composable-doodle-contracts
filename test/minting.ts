@@ -139,7 +139,7 @@ describe('Doodle Minting', async () => {
         [
           [
             bn(BODY_PART_ID),
-            bn(6),
+            bn(17),
             3,
             body.address,
             bn(1),
@@ -148,7 +148,7 @@ describe('Doodle Minting', async () => {
           ],
           [
             bn(HEAD_PART_ID),
-            bn(6),
+            bn(17),
             2,
             head.address,
             bn(1),
@@ -157,7 +157,7 @@ describe('Doodle Minting', async () => {
           ],
           [
             bn(LEGS_PART_ID),
-            bn(6),
+            bn(17),
             2,
             legs.address,
             bn(1),
@@ -166,7 +166,7 @@ describe('Doodle Minting', async () => {
           ],
           [
             bn(LEFT_ARM_PART_ID),
-            bn(6),
+            bn(17),
             2,
             leftArm.address,
             bn(1),
@@ -175,7 +175,7 @@ describe('Doodle Minting', async () => {
           ],
           [
             bn(RIGHT_ARM_PART_ID),
-            bn(6),
+            bn(17),
             2,
             rightArm.address,
             bn(1),

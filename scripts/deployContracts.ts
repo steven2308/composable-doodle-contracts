@@ -1,6 +1,6 @@
 import { ethers } from 'hardhat';
 import { DoodleBase, DoodlePart, DoodleSheet, RobotFactory } from '../typechain-types';
-import { ONE_GLMR, ADDRESS_ZERO } from './constants';
+import { ADDRESS_ZERO } from './constants';
 
 async function deployContracts() {
   const baseFactory = await ethers.getContractFactory('DoodleBase');
@@ -8,45 +8,45 @@ async function deployContracts() {
   const sheetFactory = await ethers.getContractFactory('DoodleSheet');
   const partFactory = await ethers.getContractFactory('DoodlePart');
 
-  const base = <DoodleBase>await baseFactory.deploy('ipfs://base_meta', 'image/png');
-  const sheet = <DoodleSheet>await sheetFactory.deploy('ipfs://collection_meta', ADDRESS_ZERO);
+  const base = <DoodleBase>await baseFactory.deploy('ipfs://QmU7hgSNywFcxzG6FcQXpBWjszf9sBRKYrr5yyoJgs9Q9j/collections/base', 'image/png');
+  const sheet = <DoodleSheet>await sheetFactory.deploy('ipfs://QmU7hgSNywFcxzG6FcQXpBWjszf9sBRKYrr5yyoJgs9Q9j/collections/sheet', ADDRESS_ZERO);
   const head = <DoodlePart>(
     await partFactory.deploy(
-      'Composable Doodle Robot Head',
-      'CDRH',
-      'ipfs:/head-meta',
+      'Composable Doodle Bot Heads',
+      'CDBH',
+      'ipfs:/QmU7hgSNywFcxzG6FcQXpBWjszf9sBRKYrr5yyoJgs9Q9j/collections/heads',
       ADDRESS_ZERO,
     )
   );
   const body = <DoodlePart>(
     await partFactory.deploy(
-      'Composable Doodle Robot Body',
-      'CDRB',
-      'ipfs:/head-meta',
+      'Composable Doodle Bot Bodies',
+      'CDBB',
+      'ipfs:/QmU7hgSNywFcxzG6FcQXpBWjszf9sBRKYrr5yyoJgs9Q9j/collections/bodies',
       ADDRESS_ZERO,
     )
   );
   const legs = <DoodlePart>(
     await partFactory.deploy(
-      'Composable Doodle Robot Legs',
-      'CDRL',
-      'ipfs:/head-meta',
+      'Composable Doodle Bot Legs',
+      'CDBL',
+      'ipfs:/QmU7hgSNywFcxzG6FcQXpBWjszf9sBRKYrr5yyoJgs9Q9j/collections/legs',
       ADDRESS_ZERO,
     )
   );
   const leftArm = <DoodlePart>(
     await partFactory.deploy(
-      'Composable Doodle Robot Left Arm',
-      'CDRLA',
-      'ipfs:/head-meta',
+      'Composable Doodle Bot Left Arms',
+      'CDBLA',
+      'ipfs:/QmU7hgSNywFcxzG6FcQXpBWjszf9sBRKYrr5yyoJgs9Q9j/collections/leftArms',
       ADDRESS_ZERO,
     )
   );
   const rightArm = <DoodlePart>(
     await partFactory.deploy(
-      'Composable Doodle Robot Right Arm',
-      'CDRRA',
-      'ipfs:/head-meta',
+      'Composable Doodle Robot Right Arms',
+      'CDBRA',
+      'ipfs:/QmU7hgSNywFcxzG6FcQXpBWjszf9sBRKYrr5yyoJgs9Q9j/collections/rightArms',
       ADDRESS_ZERO,
     )
   );

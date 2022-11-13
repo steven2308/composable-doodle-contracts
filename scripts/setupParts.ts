@@ -1,4 +1,4 @@
-import { ethers, network } from 'hardhat';
+import { ethers } from 'hardhat';
 import { BigNumber } from 'ethers';
 import { DoodleBase, DoodleSheet, DoodlePart, RobotFactory } from '../typechain-types';
 import {
@@ -102,12 +102,13 @@ async function setupParts(
       [],
       [],
     );
+    await sleep(4);
   }
   await body.setValidParentForEquippableGroup(1, sheet.address, BODY_PART_ID);
   await body.configureResourceEntries(configs);
   await body.updateRoyaltyRecipient(factory.address);
   console.log('Body configured');
-  await sleep(13);
+  await sleep(12);
 
   // HEADS
   for (let i = 0; i < TOTAL_PARTS; i++) {
@@ -127,12 +128,13 @@ async function setupParts(
       [],
       [],
     );
+    await sleep(4);
   }
   await head.setValidParentForEquippableGroup(1, sheet.address, HEAD_PART_ID);
   await head.configureResourceEntries(configs);
   await head.updateRoyaltyRecipient(factory.address);
   console.log('Head configured');
-  await sleep(13);
+  await sleep(12);
 
   // LEGS
   for (let i = 0; i < TOTAL_PARTS; i++) {
@@ -152,12 +154,13 @@ async function setupParts(
       [],
       [],
     );
+    await sleep(4);
   }
   await legs.setValidParentForEquippableGroup(1, sheet.address, LEGS_PART_ID);
   await legs.configureResourceEntries(configs);
   await legs.updateRoyaltyRecipient(factory.address);
   console.log('Legs configured');
-  await sleep(13);
+  await sleep(12);
 
   // LEFT ARMS
   for (let i = 0; i < TOTAL_PARTS; i++) {
@@ -177,12 +180,13 @@ async function setupParts(
       [],
       [],
     );
+    await sleep(4);
   }
   await leftArm.setValidParentForEquippableGroup(1, sheet.address, LEFT_ARM_PART_ID);
   await leftArm.configureResourceEntries(configs);
   await leftArm.updateRoyaltyRecipient(factory.address);
-  console.log('Left arm Configuredleft');
-  await sleep(13);
+  console.log('Left arm Configured');
+  await sleep(12);
 
   // RIGHT ARMS
   for (let i = 0; i < TOTAL_PARTS; i++) {
@@ -202,11 +206,12 @@ async function setupParts(
       [],
       [],
     );
+    await sleep(4);
   }
   await rightArm.setValidParentForEquippableGroup(1, sheet.address, RIGHT_ARM_PART_ID);
   await rightArm.configureResourceEntries(configs);
   await rightArm.updateRoyaltyRecipient(factory.address);
-  console.log('Right arm Configuredleft');
+  console.log('Right arm Configured');
 }
 
 export default setupParts;
