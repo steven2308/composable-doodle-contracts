@@ -57,10 +57,10 @@ const equipRightArmsMetaUris = Array.from(
 );
 
 interface Config {
-  resourceId: number;
+  assetId: number;
   fullToEquip: number;
   maxSupply: number;
-  pricePerResource: BigNumber;
+  pricePerAsset: BigNumber;
 }
 
 async function setupParts(
@@ -77,139 +77,93 @@ async function setupParts(
   let configs: Array<Config> = Array();
   for (let i = 0; i < TOTAL_PARTS; i++) {
     configs.push({
-      resourceId: i + 1,
+      assetId: i + 1,
       fullToEquip: TOTAL_PARTS + i + 1,
       maxSupply: MAX_SUPPLIES[i],
-      pricePerResource: PRICES[i],
+      pricePerAsset: PRICES[i],
     });
   }
 
   // BODIES
   for (let i = 0; i < TOTAL_PARTS; i++) {
-    await body.addResourceEntry(
-      i + 1,
-      0,
-      ethers.constants.AddressZero,
-      mainBodiesMetaUris[i],
-      [],
-      [],
-    );
-    await body.addResourceEntry(
-      TOTAL_PARTS + i + 1,
-      1,
-      base.address,
-      equipBodiesMetaUris[i],
-      [],
-      [],
-    );
+    await body.addAssetEntry(i + 1, 0, ethers.constants.AddressZero, mainBodiesMetaUris[i], []);
+    await body.addAssetEntry(TOTAL_PARTS + i + 1, 1, base.address, equipBodiesMetaUris[i], []);
     await sleep(4);
   }
   await body.setValidParentForEquippableGroup(1, sheet.address, BODY_PART_ID);
-  await body.configureResourceEntries(configs);
+  await body.configureAssetEntries(configs);
   await body.updateRoyaltyRecipient(factory.address);
   console.log('Body configured');
   await sleep(12);
 
   // HEADS
   for (let i = 0; i < TOTAL_PARTS; i++) {
-    await head.addResourceEntry(
-      i + 1,
-      0,
-      ethers.constants.AddressZero,
-      mainHeadsMetaUris[i],
-      [],
-      [],
-    );
-    await head.addResourceEntry(
-      TOTAL_PARTS + i + 1,
-      1,
-      base.address,
-      equipHeadsMetaUris[i],
-      [],
-      [],
-    );
+    await head.addAssetEntry(i + 1, 0, ethers.constants.AddressZero, mainHeadsMetaUris[i], []);
+    await head.addAssetEntry(TOTAL_PARTS + i + 1, 1, base.address, equipHeadsMetaUris[i], []);
     await sleep(4);
   }
   await head.setValidParentForEquippableGroup(1, sheet.address, HEAD_PART_ID);
-  await head.configureResourceEntries(configs);
+  await head.configureAssetEntries(configs);
   await head.updateRoyaltyRecipient(factory.address);
   console.log('Head configured');
   await sleep(12);
 
   // LEGS
   for (let i = 0; i < TOTAL_PARTS; i++) {
-    await legs.addResourceEntry(
-      i + 1,
-      0,
-      ethers.constants.AddressZero,
-      mainLegsMetaUris[i],
-      [],
-      [],
-    );
-    await legs.addResourceEntry(
-      TOTAL_PARTS + i + 1,
-      1,
-      base.address,
-      equipLegsMetaUris[i],
-      [],
-      [],
-    );
+    await legs.addAssetEntry(i + 1, 0, ethers.constants.AddressZero, mainLegsMetaUris[i], []);
+    await legs.addAssetEntry(TOTAL_PARTS + i + 1, 1, base.address, equipLegsMetaUris[i], []);
     await sleep(4);
   }
   await legs.setValidParentForEquippableGroup(1, sheet.address, LEGS_PART_ID);
-  await legs.configureResourceEntries(configs);
+  await legs.configureAssetEntries(configs);
   await legs.updateRoyaltyRecipient(factory.address);
   console.log('Legs configured');
   await sleep(12);
 
   // LEFT ARMS
   for (let i = 0; i < TOTAL_PARTS; i++) {
-    await leftArm.addResourceEntry(
+    await leftArm.addAssetEntry(
       i + 1,
       0,
       ethers.constants.AddressZero,
       mainLeftArmsMetaUris[i],
       [],
-      [],
     );
-    await leftArm.addResourceEntry(
+    await leftArm.addAssetEntry(
       TOTAL_PARTS + i + 1,
       1,
       base.address,
       equipLeftArmsMetaUris[i],
       [],
-      [],
     );
     await sleep(4);
   }
   await leftArm.setValidParentForEquippableGroup(1, sheet.address, LEFT_ARM_PART_ID);
-  await leftArm.configureResourceEntries(configs);
+  await leftArm.configureAssetEntries(configs);
   await leftArm.updateRoyaltyRecipient(factory.address);
   console.log('Left arm Configured');
   await sleep(12);
 
   // RIGHT ARMS
   for (let i = 0; i < TOTAL_PARTS; i++) {
-    await rightArm.addResourceEntry(
+    await rightArm.addAssetEntry(
       i + 1,
       0,
       ethers.constants.AddressZero,
       mainRightArmsMetaUris[i],
       [],
-      [],
     );
-    await rightArm.addResourceEntry(
+    await rightArm.addAssetEntry(
       TOTAL_PARTS + i + 1,
       1,
       base.address,
       equipRightArmsMetaUris[i],
       [],
-      [],
     );
     await sleep(4);
   }
   await rightArm.setValidParentForEquippableGroup(1, sheet.address, RIGHT_ARM_PART_ID);
-  await rightArm.configureResourceEntries(configs);
+  await rightArm.configureAssetEntries(configs);
   await rightArm.updateRoyaltyRecipient(factory.address);
   console.log('Right arm Configured');
 }

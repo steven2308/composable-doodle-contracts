@@ -18,20 +18,20 @@ contract DoodlePart is
     RMRKRoyalties,
     RMRKEquippable
 {
-    struct ResourceConfig {
-        uint64 resourceId;
+    struct AssetConfig {
+        uint64 assetId;
         uint64 fullToEquip;
         uint64 maxSupply;
-        uint256 pricePerResource;
+        uint256 pricePerAsset;
     }
 
     uint256 private constant _MAX_SUPPLY = 1000;
     uint256 private _totalSupply;
 
-    mapping(uint64 => uint256) private _totalSupplyPerResource;
-    mapping(uint64 => uint256) private _maxSupplyPerResource;
-    mapping(uint64 => uint64) private _fullToEquipResource;
-    mapping(uint64 => uint256) private _pricePerResource;
+    mapping(uint64 => uint256) private _totalSupplyPerAsset;
+    mapping(uint64 => uint256) private _maxSupplyPerAsset;
+    mapping(uint64 => uint64) private _fullToEquipAsset;
+    mapping(uint64 => uint256) private _pricePerAsset;
     address private _factory;
 
     modifier onlyFactory() {
@@ -58,74 +58,72 @@ contract DoodlePart is
     function nestMint(
         address parent,
         uint256 destinationId,
-        uint64 resourceId
+        uint64 assetId
     ) external saleIsOpen onlyFactory returns (uint256) {
         uint256 tokenId = _totalSupply + 1;
-        uint64 equipResourceId = _fullToEquipResource[resourceId];
+        uint64 equipAssetId = _fullToEquipAsset[assetId];
 
         if (
-            _totalSupplyPerResource[resourceId] ==
-            _maxSupplyPerResource[resourceId]
+            _totalSupplyPerAsset[assetId] ==
+            _maxSupplyPerAsset[assetId]
         ) revert PartOutOfStock();
 
         unchecked {
-            _totalSupplyPerResource[resourceId] += 1;
+            _totalSupplyPerAsset[assetId] += 1;
             _totalSupply += 1;
         }
-        _nestMint(parent, tokenId, destinationId);
-        _addResourceToToken(tokenId, equipResourceId, uint64(0));
-        _addResourceToToken(tokenId, resourceId, uint64(0));
-        _acceptResource(tokenId, 1, resourceId);
-        _acceptResource(tokenId, 0, equipResourceId);
+        _nestMint(parent, tokenId, destinationId, "");
+        _addAssetToToken(tokenId, equipAssetId, uint64(0));
+        _addAssetToToken(tokenId, assetId, uint64(0));
+        _acceptAsset(tokenId, 1, assetId);
+        _acceptAsset(tokenId, 0, equipAssetId);
         return tokenId;
     }
 
-    function addResourceEntry(
+    function addAssetEntry(
         uint64 id,
         uint64 equippableGroupId,
         address baseAddress,
         string memory metadataURI,
-        uint64[] memory fixedPartIds,
-        uint64[] memory slotPartIds
+        uint64[] calldata partIds
     ) external onlyOwnerOrContributor {
-        _addResourceEntry(
+        _addAssetEntry(
             id,
             equippableGroupId,
             baseAddress,
             metadataURI,
-            fixedPartIds,
-            slotPartIds
+            partIds
         );
     }
 
-    function addResourceToTokens(
+    function addAssetToTokens(
         uint256[] calldata tokenIds,
-        uint64 resourceId,
+        uint64 assetId,
         uint64 overwrites
     ) external onlyOwnerOrContributor {
         uint256 length = tokenIds.length;
         for (uint256 i; i < length; ) {
-            _addResourceToToken(tokenIds[i], resourceId, overwrites);
+            _addAssetToToken(tokenIds[i], assetId, overwrites);
             unchecked {
                 ++i;
             }
         }
     }
 
-    function configureResourceEntries(
-        ResourceConfig[] memory resourceConfigs
+    function configureAssetEntries(
+        AssetConfig[] memory assetConfigs
     ) external onlyOwner {
-        uint256 length = resourceConfigs.length;
+        uint256 length = assetConfigs.length;
         for (uint256 i; i < length; ) {
-            _pricePerResource[resourceConfigs[i].resourceId] = resourceConfigs[
+            _pricePerAsset[assetConfigs[i].assetId] = assetConfigs[
                 i
-            ].pricePerResource;
-            _maxSupplyPerResource[
-                resourceConfigs[i].resourceId
-            ] = resourceConfigs[i].maxSupply;
-            _fullToEquipResource[
-                resourceConfigs[i].resourceId
-            ] = resourceConfigs[i].fullToEquip;
+            ].pricePerAsset;
+            _maxSupplyPerAsset[
+                assetConfigs[i].assetId
+            ] = assetConfigs[i].maxSupply;
+            _fullToEquipAsset[
+                assetConfigs[i].assetId
+            ] = assetConfigs[i].fullToEquip;
             unchecked {
                 ++i;
             }
@@ -144,20 +142,20 @@ contract DoodlePart is
         );
     }
 
-    function totalSupply(uint64 resourceId) public view returns (uint256) {
-        return _totalSupplyPerResource[resourceId];
+    function totalSupply(uint64 assetId) public view returns (uint256) {
+        return _totalSupplyPerAsset[assetId];
     }
 
-    function maxSupply(uint64 resourceId) public view returns (uint256) {
-        return _maxSupplyPerResource[resourceId];
+    function maxSupply(uint64 assetId) public view returns (uint256) {
+        return _maxSupplyPerAsset[assetId];
     }
 
-    function pricePerResource(uint64 resourceId) public view returns (uint256) {
-        return _pricePerResource[resourceId];
+    function pricePerAsset(uint64 assetId) public view returns (uint256) {
+        return _pricePerAsset[assetId];
     }
 
-    function fullToEquip(uint64 resourceId) public view returns (uint64) {
-        return _fullToEquipResource[resourceId];
+    function fullToEquip(uint64 assetId) public view returns (uint64) {
+        return _fullToEquipAsset[assetId];
     }
 
     function updateRoyaltyRecipient(
@@ -182,8 +180,8 @@ contract DoodlePart is
         uint256 tokenId
     ) public view override returns (string memory) {
         _requireMinted(tokenId);
-        uint64 mainResource = _activeResources[tokenId][0];
-        return getResourceMetadata(tokenId, mainResource);
+        uint64 mainAsset = _activeAssets[tokenId][0];
+        return getAssetMetadata(tokenId, mainAsset);
     }
 
     function totalSupply() public view returns (uint256) {

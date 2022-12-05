@@ -5,7 +5,7 @@ pragma solidity ^0.8.16;
 import "@rmrk-team/evm-contracts/contracts/RMRK/access/OwnableLock.sol";
 // We import these 2 just so it's included on typechain. We'll need it to compose NFTs
 import "@rmrk-team/evm-contracts/contracts/RMRK/utils/RMRKEquipRenderUtils.sol";
-import "@rmrk-team/evm-contracts/contracts/RMRK/utils/RMRKMultiResourceRenderUtils.sol";
+import "@rmrk-team/evm-contracts/contracts/RMRK/utils/RMRKMultiAssetRenderUtils.sol";
 import "./IDoodlePart.sol";
 import "./IDoodleSheet.sol";
 
@@ -37,12 +37,12 @@ contract RobotFactory is OwnableLock {
     event BotBuilt(
         address indexed to,
         uint256 indexed sheetId,
-        uint64 sheetResourceId,
-        uint64 bodyResourceId,
-        uint64 headResourceId,
-        uint64 legsResourceId,
-        uint64 leftArmResourceId,
-        uint64 rightArResourcemId
+        uint64 sheetAssetId,
+        uint64 bodyAssetId,
+        uint64 headAssetId,
+        uint64 legsAssetId,
+        uint64 leftArmAssetId,
+        uint64 rightArAssetmId
     );
 
     constructor(
@@ -78,13 +78,13 @@ contract RobotFactory is OwnableLock {
         if (_salesOpen == 0) revert SalesNotOpen();
         uint256 sheetId = IDoodleSheet(_sheet).mint(to, sheetResId);
 
-        uint256 totalPrice = IDoodlePart(_leftArm).pricePerResource(
+        uint256 totalPrice = IDoodlePart(_leftArm).pricePerAsset(
             leftArmResId
         ) +
-            IDoodlePart(_rightArm).pricePerResource(rightArmResId) +
-            IDoodlePart(_legs).pricePerResource(legsResId) +
-            IDoodlePart(_head).pricePerResource(headResId) +
-            IDoodlePart(_body).pricePerResource(bodyResId);
+            IDoodlePart(_rightArm).pricePerAsset(rightArmResId) +
+            IDoodlePart(_legs).pricePerAsset(legsResId) +
+            IDoodlePart(_head).pricePerAsset(headResId) +
+            IDoodlePart(_body).pricePerAsset(bodyResId);
         if (totalPrice != msg.value) revert MintUnderpriced();
         _distributeValue();
 
@@ -145,7 +145,7 @@ contract RobotFactory is OwnableLock {
         uint64 leftArmResId,
         uint64 rightArmResId
     ) private {
-        // On mint there will be 2^8 resources, with this we can easily keep track of the original minted combinations
+        // On mint there will be 2^8 assets, with this we can easily keep track of the original minted combinations
         uint256 combinationId = _getCombinationId(
             bodyResId,
             headResId,

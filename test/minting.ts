@@ -77,17 +77,17 @@ describe('Doodle Minting', async () => {
   });
 
   describe('Config', async () => {
-    it('can get max supply per resource', async () => {
+    it('can get max supply per asset', async () => {
       expect(await head['maxSupply()']()).to.eql(bn(1000));
       expect(await head['maxSupply(uint64)'](1)).to.eql(bn(MAX_SUPPLIES[0]));
       expect(await head['maxSupply(uint64)'](4)).to.eql(bn(MAX_SUPPLIES[3]));
     });
 
-    it('can get price per resource', async () => {
-      expect(await head.pricePerResource(1)).to.eql(PRICES[1 - 1]);
-      expect(await head.pricePerResource(2)).to.eql(PRICES[2 - 1]);
-      expect(await head.pricePerResource(3)).to.eql(PRICES[3 - 1]);
-      expect(await head.pricePerResource(4)).to.eql(PRICES[4 - 1]);
+    it('can get price per asset', async () => {
+      expect(await head.pricePerAsset(1)).to.eql(PRICES[1 - 1]);
+      expect(await head.pricePerAsset(2)).to.eql(PRICES[2 - 1]);
+      expect(await head.pricePerAsset(3)).to.eql(PRICES[3 - 1]);
+      expect(await head.pricePerAsset(4)).to.eql(PRICES[4 - 1]);
     });
 
     it('can get factory address', async () => {
@@ -115,7 +115,7 @@ describe('Doodle Minting', async () => {
       await expect(
         factory
           .connect(buyer)
-          .mint(buyer.address, 1, 2, 1, 2, 1, 2, { value: priceFromResources(2, 1, 2, 1, 2) }),
+          .mint(buyer.address, 1, 2, 1, 2, 1, 2, { value: priceFromAssets(2, 1, 2, 1, 2) }),
       )
         .to.emit(factory, 'BotBuilt')
         .withArgs(buyer.address, 1, 1, 2, 1, 2, 1, 2);
@@ -130,7 +130,7 @@ describe('Doodle Minting', async () => {
       await factory.setSalesOpen(true);
       await factory
         .connect(buyer)
-        .mint(buyer.address, 1, 1, 1, 1, 1, 1, { value: priceFromResources(2, 1, 2, 1, 2) });
+        .mint(buyer.address, 1, 1, 1, 1, 1, 1, { value: priceFromAssets(2, 1, 2, 1, 2) });
       expect(await renderUtilsEquip.composeEquippables(sheet.address, 1, 1)).to.eql([
         'ipfs://QmVVXtXk8z1ExDdFy5WCFX5cWDVTqzaqACH57fP9r3wv2V/sheets/1',
         bn(0),
@@ -190,7 +190,7 @@ describe('Doodle Minting', async () => {
       await factory.setSalesOpen(true);
       await factory
         .connect(buyer)
-        .mint(buyer.address, 1, 2, 1, 2, 1, 2, { value: priceFromResources(2, 1, 2, 1, 2) });
+        .mint(buyer.address, 1, 2, 1, 2, 1, 2, { value: priceFromAssets(2, 1, 2, 1, 2) });
 
       expect(await factory.isCombinationMinted(2, 1, 2, 1, 2)).to.eql(true);
       expect(await factory.isCombinationMinted(1, 1, 2, 1, 2)).to.eql(false);
@@ -198,7 +198,7 @@ describe('Doodle Minting', async () => {
       await expect(
         factory
           .connect(buyer)
-          .mint(buyer.address, 1, 2, 1, 2, 1, 2, { value: priceFromResources(2, 1, 2, 1, 2) }),
+          .mint(buyer.address, 1, 2, 1, 2, 1, 2, { value: priceFromAssets(2, 1, 2, 1, 2) }),
       ).to.be.revertedWithCustomError(factory, 'CombinationAlreadyMinted');
     });
 
@@ -206,7 +206,7 @@ describe('Doodle Minting', async () => {
       await expect(
         factory
           .connect(buyer)
-          .mint(buyer.address, 1, 1, 1, 1, 1, 1, { value: priceFromResources(1, 1, 1, 1, 1) }),
+          .mint(buyer.address, 1, 1, 1, 1, 1, 1, { value: priceFromAssets(1, 1, 1, 1, 1) }),
       ).to.be.revertedWithCustomError(factory, 'SalesNotOpen');
     });
 
@@ -214,7 +214,7 @@ describe('Doodle Minting', async () => {
       await factory.setSalesOpen(true);
       await expect(
         factory.connect(buyer).mint(buyer.address, 1, 1, 1, 1, 1, 1, {
-          value: priceFromResources(1, 1, 1, 1, 1).div(2),
+          value: priceFromAssets(1, 1, 1, 1, 1).div(2),
         }),
       ).to.be.revertedWithCustomError(factory, 'MintUnderpriced');
     });
@@ -241,7 +241,7 @@ describe('Doodle Minting', async () => {
             leftArmResId,
             rightArmResId,
             {
-              value: priceFromResources(
+              value: priceFromAssets(
                 bodyResId,
                 headResId,
                 legsResId,
@@ -280,7 +280,7 @@ describe('Doodle Minting', async () => {
             leftArmResId,
             rightArmResId,
             {
-              value: priceFromResources(
+              value: priceFromAssets(
                 bodyResId,
                 headResId,
                 legsResId,
@@ -307,8 +307,8 @@ describe('Doodle Minting', async () => {
   describe('Partners', async () => {
     it('can withdraw raised', async () => {
       await factory.setSalesOpen(true);
-      const price1 = priceFromResources(2, 1, 2, 1, 2);
-      const price2 = priceFromResources(2, 2, 2, 2, 2);
+      const price1 = priceFromAssets(2, 1, 2, 1, 2);
+      const price2 = priceFromAssets(2, 2, 2, 2, 2);
       await factory.connect(buyer).mint(buyer.address, 1, 2, 1, 2, 1, 2, { value: price1 });
       await factory.connect(buyer).mint(buyer.address, 2, 2, 2, 2, 2, 2, { value: price2 });
 
@@ -359,7 +359,7 @@ describe('Doodle Minting', async () => {
       await factory.setSalesOpen(true);
       await factory
         .connect(buyer)
-        .mint(buyer.address, 1, 2, 1, 2, 1, 2, { value: priceFromResources(2, 1, 2, 1, 2) });
+        .mint(buyer.address, 1, 2, 1, 2, 1, 2, { value: priceFromAssets(2, 1, 2, 1, 2) });
       await expect(
         factory.connect(buyer).withdrawRaised(buyer.address),
       ).to.be.revertedWithCustomError(factory, 'OnlyParternsCanWithdraw');
@@ -392,7 +392,7 @@ function bn(value: number): BigNumber {
   return BigNumber.from(value);
 }
 
-function priceFromResources(
+function priceFromAssets(
   bodyResId: number,
   headResId: number,
   legsResId: number,

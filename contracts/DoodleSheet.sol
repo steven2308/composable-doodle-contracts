@@ -24,7 +24,7 @@ contract DoodleSheet is
     uint64 private constant _RIGHT_ARM_PART_ID = 5;
 
     address private _factory;
-    mapping(uint64 => uint256) private _totalSupplyPerResource;
+    mapping(uint64 => uint256) private _totalSupplyPerAsset;
 
     modifier onlyFactory() {
         _onlyFactory();
@@ -43,49 +43,47 @@ contract DoodleSheet is
 
     function mint(
         address to,
-        uint64 resourceId
+        uint64 assetId
     ) external saleIsOpen onlyFactory returns (uint256) {
         uint256 tokenId = _totalSupply + 1;
         unchecked {
             _totalSupply += 1;
-            _totalSupplyPerResource[resourceId] += 1;
+            _totalSupplyPerAsset[assetId] += 1;
         }
-        _mint(to, tokenId);
-        _addResourceToToken(tokenId, resourceId, uint64(0));
-        _acceptResource(tokenId, 0, resourceId);
+        _mint(to, tokenId, "");
+        _addAssetToToken(tokenId, assetId, uint64(0));
+        _acceptAsset(tokenId, 0, assetId);
         return tokenId;
     }
 
-    function totalSupply(uint64 resourceId) public view returns (uint256) {
-        return _totalSupplyPerResource[resourceId];
+    function totalSupply(uint64 assetId) public view returns (uint256) {
+        return _totalSupplyPerAsset[assetId];
     }
 
-    function addResourceEntry(
+    function addAssetEntry(
         uint64 id,
         uint64 equippableGroupId,
         address baseAddress,
         string memory metadataURI,
-        uint64[] memory fixedPartIds,
-        uint64[] memory slotPartIds
+        uint64[] calldata partIds
     ) external onlyOwnerOrContributor {
-        _addResourceEntry(
+        _addAssetEntry(
             id,
             equippableGroupId,
             baseAddress,
             metadataURI,
-            fixedPartIds,
-            slotPartIds
+            partIds
         );
     }
 
-    function addResourceToTokens(
+    function addAssetToTokens(
         uint256[] calldata tokenIds,
-        uint64 resourceId,
+        uint64 assetId,
         uint64 overwrites
     ) external onlyOwnerOrContributor {
         uint256 length = tokenIds.length;
         for (uint256 i; i < length; ) {
-            _addResourceToToken(tokenIds[i], resourceId, overwrites);
+            _addAssetToToken(tokenIds[i], assetId, overwrites);
             unchecked {
                 ++i;
             }
@@ -126,8 +124,8 @@ contract DoodleSheet is
         uint256 tokenId
     ) public view override returns (string memory) {
         _requireMinted(tokenId);
-        uint64 mainResource = _activeResources[tokenId][0];
-        return getResourceMetadata(tokenId, mainResource);
+        uint64 mainAsset = _activeAssets[tokenId][0];
+        return getAssetMetadata(tokenId, mainAsset);
     }
 
     function acceptChildrenFromFactory(
@@ -166,45 +164,45 @@ contract DoodleSheet is
             IntakeEquip({
                 tokenId: tokenId,
                 childIndex: 0,
-                resourceId: sheetResId,
+                assetId: sheetResId,
                 slotPartId: _BODY_PART_ID,
-                childResourceId: bodyResId
+                childAssetId: bodyResId
             })
         );
         _equip(
             IntakeEquip({
                 tokenId: tokenId,
                 childIndex: 1,
-                resourceId: sheetResId,
+                assetId: sheetResId,
                 slotPartId: _HEAD_PART_ID,
-                childResourceId: headResId
+                childAssetId: headResId
             })
         );
         _equip(
             IntakeEquip({
                 tokenId: tokenId,
                 childIndex: 2,
-                resourceId: sheetResId,
+                assetId: sheetResId,
                 slotPartId: _LEGS_PART_ID,
-                childResourceId: legsResId
+                childAssetId: legsResId
             })
         );
         _equip(
             IntakeEquip({
                 tokenId: tokenId,
                 childIndex: 3,
-                resourceId: sheetResId,
+                assetId: sheetResId,
                 slotPartId: _RIGHT_ARM_PART_ID,
-                childResourceId: rightArmResId
+                childAssetId: rightArmResId
             })
         );
         _equip(
             IntakeEquip({
                 tokenId: tokenId,
                 childIndex: 4,
-                resourceId: sheetResId,
+                assetId: sheetResId,
                 slotPartId: _LEFT_ARM_PART_ID,
-                childResourceId: leftArmResId
+                childAssetId: leftArmResId
             })
         );
     }

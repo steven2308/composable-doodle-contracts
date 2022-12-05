@@ -2,7 +2,7 @@ import { ethers } from 'hardhat';
 import { BigNumber } from 'ethers';
 import { PRICES } from '../scripts/constants';
 
-function priceFromResources(
+function priceFromAssets(
   bodyResId: number,
   headResId: number,
   legsResId: number,
@@ -24,7 +24,7 @@ async function main() {
   // const compose = await renderUtils.composeEquippables('0xF81451b44cd9F6347FC573330c53912555c63fC4', 3, 1);
   // console.log(compose);
   const tx = await factory.mint('0xA6cc9397d29b631b69782e5F7fB9801224C8FA90', 1, 1, 1, 1, 1, 1, {
-    value: priceFromResources(1, 1, 1, 1, 1),
+    value: priceFromAssets(1, 1, 1, 1, 1),
   });
   console.log(tx.hash);
   await tx.wait();

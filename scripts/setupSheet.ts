@@ -15,12 +15,11 @@ const sheetMetaUris = Array.from(
 
 async function setupSheet(factory: RobotFactory, base: DoodleBase, sheet: DoodleSheet) {
   for (let i = 0; i < sheetMetaUris.length; i++) {
-    await sheet.addResourceEntry(
+    await sheet.addAssetEntry(
       i + 1,
       0,
       base.address,
       sheetMetaUris[i],
-      [],
       [BODY_PART_ID, HEAD_PART_ID, LEGS_PART_ID, LEFT_ARM_PART_ID, RIGHT_ARM_PART_ID],
     );
     await sheet.updateRoyaltyRecipient(factory.address);

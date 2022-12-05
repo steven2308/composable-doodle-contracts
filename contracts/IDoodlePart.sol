@@ -6,12 +6,12 @@ interface IDoodlePart {
     function nestMint(
         address parent,
         uint256 destinationId,
-        uint64 resourceId
+        uint64 assetId
     ) external returns (uint256);
 
-    function pricePerResource(
-        uint64 resourceId
+    function pricePerAsset(
+        uint64 assetId
     ) external view returns (uint256);
 
-    function fullToEquip(uint64 resourceId) external view returns (uint64);
+    function fullToEquip(uint64 assetId) external view returns (uint64);
 }
