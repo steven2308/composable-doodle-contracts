@@ -122,7 +122,7 @@ contract DoodleSheet is
 
     function tokenURI(
         uint256 tokenId
-    ) public view override returns (string memory) {
+    ) public view returns (string memory) {
         _requireMinted(tokenId);
         uint64 mainAsset = _activeAssets[tokenId][0];
         return getAssetMetadata(tokenId, mainAsset);

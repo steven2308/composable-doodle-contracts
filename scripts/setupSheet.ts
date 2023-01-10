@@ -1,4 +1,4 @@
-import { DoodleBase, DoodleSheet, RobotFactory } from '../typechain-types';
+import { DoodleCatalog, DoodleSheet, RobotFactory } from '../typechain-types';
 import {
   BASE_META_URI,
   BODY_PART_ID,
@@ -13,7 +13,7 @@ const sheetMetaUris = Array.from(
   (_, index) => `${BASE_META_URI}/sheets/${index + 1}`,
 );
 
-async function setupSheet(factory: RobotFactory, base: DoodleBase, sheet: DoodleSheet) {
+async function setupSheet(factory: RobotFactory, base: DoodleCatalog, sheet: DoodleSheet) {
   for (let i = 0; i < sheetMetaUris.length; i++) {
     await sheet.addAssetEntry(
       i + 1,

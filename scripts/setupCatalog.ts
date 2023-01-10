@@ -1,4 +1,4 @@
-import { DoodleBase, DoodlePart } from '../typechain-types';
+import { DoodleCatalog, DoodlePart } from '../typechain-types';
 
 const ITEM_TYPE_SLOT = 1;
 import {
@@ -9,8 +9,8 @@ import {
   RIGHT_ARM_PART_ID,
 } from './constants';
 
-async function setupBase(
-  base: DoodleBase,
+async function setupCatalog(
+  base: DoodleCatalog,
   head: DoodlePart,
   body: DoodlePart,
   legs: DoodlePart,
@@ -65,7 +65,7 @@ async function setupBase(
     },
   ]);
 
-  console.log('Base configured');
+  console.log('Catalog configured');
 }
 
-export default setupBase;
+export default setupCatalog;

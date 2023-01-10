@@ -3,7 +3,7 @@ import { ethers } from 'hardhat';
 import { BigNumber } from 'ethers';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import {
-  DoodleBase,
+  DoodleCatalog,
   DoodlePart,
   DoodleSheet,
   RobotFactory,
@@ -11,7 +11,7 @@ import {
 } from '../typechain-types';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import deployContracts from '../scripts/deployContracts';
-import setupBase from '../scripts/setupBase';
+import setupCatalog from '../scripts/setupCatalog';
 import setupParts from '../scripts/setupParts';
 import setupSheet from '../scripts/setupSheet';
 import {
@@ -27,7 +27,7 @@ import {
 import { base } from '../typechain-types/@rmrk-team/evm-contracts/contracts/RMRK';
 
 async function allContractsFactory(): Promise<{
-  base: DoodleBase;
+  base: DoodleCatalog;
   sheet: DoodleSheet;
   head: DoodlePart;
   body: DoodlePart;
@@ -39,7 +39,7 @@ async function allContractsFactory(): Promise<{
 }> {
   const { base, sheet, head, body, legs, leftArm, rightArm, factory } = await deployContracts();
 
-  await setupBase(base, head, body, legs, leftArm, rightArm);
+  await setupCatalog(base, head, body, legs, leftArm, rightArm);
   await setupSheet(factory, base, sheet);
   await setupParts(factory, base, sheet, head, body, legs, leftArm, rightArm);
 
@@ -52,7 +52,7 @@ async function allContractsFactory(): Promise<{
 
 describe('Doodle Minting', async () => {
   let factory: RobotFactory;
-  let base: DoodleBase;
+  let base: DoodleCatalog;
   let sheet: DoodleSheet;
   let head: DoodlePart;
   let body: DoodlePart;

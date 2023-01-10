@@ -1,6 +1,6 @@
 import { ethers } from 'hardhat';
 import { BigNumber } from 'ethers';
-import { DoodleBase, DoodleSheet, DoodlePart, RobotFactory } from '../typechain-types';
+import { DoodleCatalog, DoodleSheet, DoodlePart, RobotFactory } from '../typechain-types';
 import {
   BASE_META_URI,
   BODY_PART_ID,
@@ -65,7 +65,7 @@ interface Config {
 
 async function setupParts(
   factory: RobotFactory,
-  base: DoodleBase,
+  base: DoodleCatalog,
   sheet: DoodleSheet,
   head: DoodlePart,
   body: DoodlePart,

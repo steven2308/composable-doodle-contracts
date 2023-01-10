@@ -1,14 +1,14 @@
 import { ethers } from 'hardhat';
-import { DoodleBase, DoodlePart, DoodleSheet, RobotFactory } from '../typechain-types';
+import { DoodleCatalog, DoodlePart, DoodleSheet, RobotFactory } from '../typechain-types';
 import { ADDRESS_ZERO } from './constants';
 
 async function deployContracts() {
-  const baseFactory = await ethers.getContractFactory('DoodleBase');
+  const baseFactory = await ethers.getContractFactory('DoodleCatalog');
   const factoryFactory = await ethers.getContractFactory('RobotFactory');
   const sheetFactory = await ethers.getContractFactory('DoodleSheet');
   const partFactory = await ethers.getContractFactory('DoodlePart');
 
-  const base = <DoodleBase>await baseFactory.deploy('ipfs://QmU7hgSNywFcxzG6FcQXpBWjszf9sBRKYrr5yyoJgs9Q9j/collections/base', 'image/png');
+  const base = <DoodleCatalog>await baseFactory.deploy('ipfs://QmU7hgSNywFcxzG6FcQXpBWjszf9sBRKYrr5yyoJgs9Q9j/collections/base', 'image/png');
   const sheet = <DoodleSheet>await sheetFactory.deploy('ipfs://QmU7hgSNywFcxzG6FcQXpBWjszf9sBRKYrr5yyoJgs9Q9j/collections/sheet', ADDRESS_ZERO);
   const head = <DoodlePart>(
     await partFactory.deploy(
